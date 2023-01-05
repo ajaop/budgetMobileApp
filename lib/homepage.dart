@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -73,6 +74,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late double percent;
   ScrollController? _controller;
   Data _data = new Data();
+  FirebaseAuth auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -82,6 +84,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final User? user = auth.currentUser;
+    if (user!.uid.isNotEmpty) {
+      print("user Id ${user.uid}");
+    } else {
+      Navigator.pushReplacementNamed(context, '/');
+    }
     return Scaffold(
         body: SafeArea(
           child: ListView(
