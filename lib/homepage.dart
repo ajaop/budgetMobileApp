@@ -205,10 +205,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ],
                       indicator: BoxDecoration(
                           borderRadius: BorderRadius.circular(50),
-                          color: Color.fromARGB(255, 35, 63, 105)),
+                          color: const Color.fromARGB(255, 35, 63, 105)),
                       unselectedLabelColor: Colors.grey[700],
                       labelColor: Colors.white,
-                      labelStyle: TextStyle(
+                      labelStyle: const TextStyle(
                           fontSize: 15.0, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -220,13 +220,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       children: [
                         Column(children: [
                           Padding(
-                              padding:
-                                  EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
+                              padding: const EdgeInsets.fromLTRB(
+                                  30.0, 0.0, 30.0, 0.0),
                               child: Align(
                                 alignment: Alignment.topRight,
                                 child: TextButton(
                                   style: TextButton.styleFrom(
-                                    primary: Color.fromARGB(255, 1, 8, 14),
+                                    primary:
+                                        const Color.fromARGB(255, 1, 8, 14),
                                     textStyle: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w600),
@@ -251,7 +252,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               child: ListView.separated(
                                 separatorBuilder:
                                     (BuildContext context, int index) {
-                                  return SizedBox(height: 15);
+                                  return const SizedBox(height: 15);
                                 },
                                 primary: false,
                                 scrollDirection: Axis.horizontal,
@@ -261,7 +262,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ),
                           )
                         ]),
-                        Text("asssss")
+                        const Text("asssss")
                       ],
                     ),
                   )
@@ -308,10 +309,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             child: Column(
               children: [
                 Container(
-                  decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 35, 63, 105),
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(15.0))),
+                  decoration: const BoxDecoration(
+                      color: const Color.fromARGB(255, 35, 63, 105),
+                      borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(15.0))),
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20.0, 15.0, 10.0, 20.0),
                     child: Column(
