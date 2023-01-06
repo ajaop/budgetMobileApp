@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'custom_alert_dialog.dart';
 
 class AddBudget extends StatefulWidget {
   const AddBudget({Key? key}) : super(key: key);
@@ -21,7 +23,7 @@ class _AddBudgetState extends State<AddBudget> {
   final _endDateController = TextEditingController();
   final _dailyLimitController = TextEditingController();
   final _weeklyLimitController = TextEditingController();
-  bool _loading = false;
+  bool _loading = false, isExist = false;
   FirebaseAuth auth = FirebaseAuth.instance;
   var startDate, endDate;
 
@@ -98,6 +100,10 @@ class _AddBudgetState extends State<AddBudget> {
                       ),
                       TextFormField(
                         controller: _budgetTitleController,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.allow(
+                              RegExp("[a-zA-Z ]")),
+                        ],
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           hintText: 'Food & Drinks',
@@ -107,8 +113,10 @@ class _AddBudgetState extends State<AddBudget> {
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         onFieldSubmitted: (value) {},
                         validator: (value) {
-                          if (value!.isEmpty) {
+                          if (value!.trim().isEmpty) {
                             return 'Title is required';
+                          } else if (value.startsWith(RegExp(r'[0-9]'))) {
+                            return 'Title name is not valid';
                           }
                         },
                       ),
@@ -159,7 +167,7 @@ class _AddBudgetState extends State<AddBudget> {
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         onFieldSubmitted: (value) {},
                         validator: (value) {
-                          if (value!.isEmpty) {
+                          if (value!.trim().isEmpty) {
                             return 'Total amount is required';
                           }
                         },
@@ -260,7 +268,7 @@ class _AddBudgetState extends State<AddBudget> {
                                       AutovalidateMode.onUserInteraction,
                                   onFieldSubmitted: (value) {},
                                   validator: (value) {
-                                    if (value!.isEmpty) {
+                                    if (value!.trim().isEmpty) {
                                       return 'Start date is required';
                                     }
                                   },
@@ -369,7 +377,7 @@ class _AddBudgetState extends State<AddBudget> {
                                       AutovalidateMode.onUserInteraction,
                                   onFieldSubmitted: (value) {},
                                   validator: (value) {
-                                    if (value!.isEmpty) {
+                                    if (value!.trim().isEmpty) {
                                       return 'End date is required';
                                     }
                                   },
@@ -411,7 +419,7 @@ class _AddBudgetState extends State<AddBudget> {
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         onFieldSubmitted: (value) {},
                         validator: (value) {
-                          if (value!.isEmpty) {
+                          if (value!.trim().isEmpty) {
                             return 'Daily limit is required';
                           }
                         },
@@ -448,17 +456,17 @@ class _AddBudgetState extends State<AddBudget> {
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         onFieldSubmitted: (value) {},
                         validator: (value) {
-                          if (value!.isEmpty) {
+                          if (value!.trim().isEmpty) {
                             return 'Weekly limit is required';
                           }
                         },
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 60.0,
                       ),
                       ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              primary: Color.fromARGB(255, 4, 44, 76),
+                              primary: const Color.fromARGB(255, 4, 44, 76),
                               minimumSize: const Size.fromHeight(50),
                               textStyle: const TextStyle(
                                   color: Colors.white,
@@ -507,7 +515,7 @@ class _AddBudgetState extends State<AddBudget> {
               color: Colors.blue[500],
               size: 100.0,
             ),
-          )
+          ),
       ],
     );
   }
@@ -529,14 +537,14 @@ class _AddBudgetState extends State<AddBudget> {
 
     _dailyLimitController.value = TextEditingValue(
       text: dailyLimit.toStringAsFixed(2).replaceAllMapped(
-          new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => "${m[1]},"),
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => "${m[1]},"),
       selection: TextSelection.fromPosition(
         TextPosition(offset: dailyLimit.toString().length),
       ),
     );
     _weeklyLimitController.value = TextEditingValue(
       text: weeklyLimit.toStringAsFixed(2).replaceAllMapped(
-          new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => "${m[1]},"),
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => "${m[1]},"),
       selection: TextSelection.fromPosition(
         TextPosition(offset: dailyLimit.toString().length),
       ),
@@ -559,26 +567,72 @@ class _AddBudgetState extends State<AddBudget> {
     print("Daily Limit: $dailyLimit");
     print("WeeklyLimit: $weeklyLimit");
 
+    bool budgetNameExist = await doesNameAlreadyExist(budgetName);
+
+    if (!budgetNameExist) {
+      final User? user = auth.currentUser;
+
+      await FirebaseFirestore.instance
+          .collection("expenses")
+          .doc("budgets")
+          .collection(user!.email.toString())
+          .add({
+        "User": user.uid,
+        "BudgetName": budgetName,
+        "lowerCaseBudgetName": budgetName.toString().toLowerCase(),
+        "BudgetAmount": budgetAmt,
+        "startDate": startDate,
+        "endDate": endDate,
+        "DailyLimit": dailyLimit,
+        "WeeklyLimit": weeklyLimit
+      }).then((DocumentReference doc) {
+        print('Budget Created successfully');
+        _dialogBuilder(context, 'SUCCESS', 'Budget Created Successfully');
+      }).onError((e, _) {
+        print("Error writing document: $e");
+        _dialogBuilder(context, 'FAILURE', e.toString());
+      });
+    } else {
+      _dialogBuilder(context, 'FAILURE', 'budget name exists');
+    }
+
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  Future<bool> doesNameAlreadyExist(String name) async {
     final User? user = auth.currentUser;
 
     await FirebaseFirestore.instance
         .collection("expenses")
         .doc("budgets")
-        .collection(user!.uid.toString())
-        .add({
-          "User": user.email,
-          "BudgetName": budgetName,
-          "BudgetAmount": budgetAmt,
-          "startDate": startDate,
-          "endDate": endDate,
-          "DailyLimit": dailyLimit,
-          "WeeklyLimit": weeklyLimit
-        })
-        .then((DocumentReference doc) => print('Budget Created successfully'))
-        .onError((e, _) => print("Error writing document: $e"));
-
-    setState(() {
-      _loading = false;
+        .collection(user!.email.toString())
+        .where('lowerCaseBudgetName', isEqualTo: name.toLowerCase())
+        .limit(1)
+        .get()
+        .then((docs) {
+      if (docs.size >= 1) {
+        isExist = true;
+      } else {
+        isExist = false;
+      }
+    }, onError: (e) {
+      print("Error completing: $e");
+      _dialogBuilder(context, 'FAILURE', e.toString());
     });
+
+    return isExist;
+  }
+
+  Future<void> _dialogBuilder(
+      BuildContext context, String title, String description) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          barrierColor:
+          Colors.black26;
+          return CustomDialog(title: title, description: description);
+        });
   }
 }
