@@ -103,6 +103,7 @@ class _AddBudgetState extends State<AddBudget> {
                         inputFormatters: <TextInputFormatter>[
                           FilteringTextInputFormatter.allow(
                               RegExp("[a-zA-Z ]")),
+                          LengthLimitingTextInputFormatter(100),
                         ],
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
@@ -146,6 +147,7 @@ class _AddBudgetState extends State<AddBudget> {
                             decimalDigits: 0,
                             symbol: '₦',
                           ),
+                          LengthLimitingTextInputFormatter(21),
                         ],
                         onChanged: (text) {
                           if (_startDateController.text.isNotEmpty &&
@@ -163,7 +165,6 @@ class _AddBudgetState extends State<AddBudget> {
                           hintText: '12,000.00',
                         ),
                         keyboardType: TextInputType.number,
-                        textCapitalization: TextCapitalization.sentences,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         onFieldSubmitted: (value) {},
                         validator: (value) {

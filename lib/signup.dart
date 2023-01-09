@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -16,7 +17,6 @@ class _SignupScreenState extends State<SignupScreen> {
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  late String firstName, lastName, email, userId;
   bool _loading = false;
   bool _obscureText = true;
   dynamic db = FirebaseFirestore.instance;
@@ -32,32 +32,15 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   void register(username, pass) async {
+    var firstNameText = _firstNameController.text.toString();
+    var lastNameText = _lastNameController.text.toString();
+    var emailText = _emailController.text.toString();
+
     try {
       final credential = await auth
           .createUserWithEmailAndPassword(email: username, password: pass)
-          .then(
-              (value) => Navigator.pushReplacementNamed(context, '/homepage'));
-
-      final User? user = auth.currentUser;
-
-      firstName = _firstNameController.text.toString();
-      lastName = _lastNameController.text.toString();
-      email = _emailController.text.toString();
-      userId = user!.uid;
-
-      db
-          .collection("users")
-          .add({
-            "firstname": firstName,
-            "lastname": lastName,
-            "email": email,
-            "userId": userId
-          })
-          .then((DocumentReference doc) =>
-              print('DocumentSnapshot added with ID: ${doc.id}'))
-          .onError((e, _) => print("Error writing document: $e"));
-
-      print("User with $userId is logged in");
+          .then((value) =>
+              print('user with user id ${value.user!.uid} is logged in'));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         error('The password provided is too weak.');
@@ -76,6 +59,31 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() {
       _loading = false;
     });
+
+    sendToDB(firstNameText, lastNameText, emailText);
+  }
+
+  void sendToDB(firstname, lastname, email) {
+    setState(() {
+      _loading = true;
+    });
+
+    final User? user = auth.currentUser;
+    if (user!.uid.isNotEmpty) {
+      final docs = db.collection("users").add({
+        "firstname": firstname,
+        "lastname": lastname,
+        "email": email,
+        "userId": user.uid,
+        "amount": 0
+      }).then((DocumentReference doc) {
+        Navigator.pushReplacementNamed(context, '/homepage');
+      });
+
+      setState(() {
+        _loading = false;
+      });
+    }
   }
 
   void error(errorMessage) {
@@ -145,6 +153,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       keyboardType: TextInputType.text,
                       textCapitalization: TextCapitalization.sentences,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(100),
+                      ],
                       onFieldSubmitted: (value) {},
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -181,6 +192,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       textCapitalization: TextCapitalization.sentences,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       onFieldSubmitted: (value) {},
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(100),
+                      ],
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'Lastname is required';
@@ -215,6 +229,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       keyboardType: TextInputType.emailAddress,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       onFieldSubmitted: (value) {},
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(100),
+                      ],
                       validator: (value) {
                         if (value!.isEmpty ||
                             !RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
@@ -256,6 +273,9 @@ class _SignupScreenState extends State<SignupScreen> {
                                   : Icons.visibility_off)),
                           border: const OutlineInputBorder(),
                           hintText: '*******'),
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(100),
+                      ],
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       validator: (value) {
                         if (value!.isEmpty || value.length < 6) {

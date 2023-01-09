@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:proj_1/signup.dart';
 
@@ -116,6 +117,9 @@ class _SignInState extends State<SignIn> {
                       border: OutlineInputBorder(),
                       hintText: 'test@gmail.com',
                     ),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(50),
+                    ],
                     keyboardType: TextInputType.emailAddress,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     onFieldSubmitted: (value) {},
@@ -158,6 +162,9 @@ class _SignInState extends State<SignIn> {
                                 : Icons.visibility_off)),
                         border: const OutlineInputBorder(),
                         hintText: '*******'),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(50),
+                    ],
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) {
                       if (value!.isEmpty) {

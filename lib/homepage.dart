@@ -1,5 +1,7 @@
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:proj_1/add_budget_page.dart';
@@ -173,10 +175,118 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                                 letterSpacing: 0.5,
                                                 fontWeight: FontWeight.bold)),
                                         onPressed: () {
-                                          showDialog(
+                                          showModalBottomSheet<void>(
                                             context: context,
+                                            isScrollControlled: true,
                                             builder: (BuildContext context) =>
-                                                _buildPopupDialog(context),
+                                                Padding(
+                                                    padding: EdgeInsets.only(
+                                                        bottom: MediaQuery.of(
+                                                                context)
+                                                            .viewInsets
+                                                            .bottom),
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              25.0),
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          const Align(
+                                                            alignment: Alignment
+                                                                .centerLeft,
+                                                            child: Text(
+                                                              'Amount',
+                                                              style: TextStyle(
+                                                                  fontFamily:
+                                                                      'OpenSans',
+                                                                  letterSpacing:
+                                                                      0.2,
+                                                                  fontSize:
+                                                                      16.0,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  color: Color
+                                                                      .fromARGB(
+                                                                          255,
+                                                                          67,
+                                                                          65,
+                                                                          65)),
+                                                            ),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 10.0,
+                                                          ),
+                                                          TextFormField(
+                                                              inputFormatters: [
+                                                                CurrencyTextInputFormatter(
+                                                                  locale:
+                                                                      'en_NG',
+                                                                  decimalDigits:
+                                                                      0,
+                                                                  symbol: '₦',
+                                                                ),
+                                                                LengthLimitingTextInputFormatter(
+                                                                    21),
+                                                              ],
+                                                              decoration:
+                                                                  const InputDecoration(
+                                                                border:
+                                                                    OutlineInputBorder(),
+                                                                hintText:
+                                                                    '12,000.00',
+                                                              ),
+                                                              keyboardType:
+                                                                  TextInputType
+                                                                      .number,
+                                                              autovalidateMode:
+                                                                  AutovalidateMode
+                                                                      .onUserInteraction,
+                                                              onFieldSubmitted:
+                                                                  (value) {},
+                                                              validator:
+                                                                  (value) {
+                                                                if (value!
+                                                                    .trim()
+                                                                    .isEmpty) {
+                                                                  return 'Amount is required';
+                                                                }
+                                                              }),
+                                                          SizedBox(
+                                                            height: 40.0,
+                                                          ),
+                                                          ElevatedButton(
+                                                              onPressed: () {},
+                                                              style: ElevatedButton
+                                                                  .styleFrom(
+                                                                      shape:
+                                                                          RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10),
+                                                                      ),
+                                                                      primary:
+                                                                          Colors
+                                                                              .blue,
+                                                                      minimumSize:
+                                                                          const Size.fromHeight(
+                                                                              60),
+                                                                      textStyle: const TextStyle(
+                                                                          color: Colors
+                                                                              .white,
+                                                                          fontSize:
+                                                                              20,
+                                                                          fontWeight: FontWeight
+                                                                              .bold)),
+                                                              child: Text(
+                                                                  'Add Money')),
+                                                          SizedBox(
+                                                            height: 30.0,
+                                                          )
+                                                        ],
+                                                      ),
+                                                    )),
                                           );
                                         },
                                         child: const Text('+ Add Money')),
