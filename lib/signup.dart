@@ -45,7 +45,24 @@ class _SignupScreenState extends State<SignupScreen> {
       if (e.code == 'weak-password') {
         error('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
-        error('The account already exists for that email.');
+        final User? user = auth.currentUser;
+        if (user!.uid.isNotEmpty) {
+          bool userExist = await doesUserAlreadyExist(user.uid);
+          if (userExist == true) {
+            error('The account already exists for that email.');
+          } else {
+            bool addData =
+                await sendToDB(firstNameText, lastNameText, emailText);
+            print('add data ${addData.toString()}');
+            if (addData == true) {
+              Navigator.pushReplacementNamed(context, '/homepage');
+            } else {
+              error('Error signing up user.');
+            }
+          }
+        } else {
+          error('The account already exists for that email.');
+        }
       } else if (e.code == 'invalid-email') {
         error('Invalid Email');
       } else {
@@ -56,34 +73,60 @@ class _SignupScreenState extends State<SignupScreen> {
       print(e);
     }
 
+    bool addData = await sendToDB(firstNameText, lastNameText, emailText);
+    print('add data ${addData.toString()}');
+    if (addData == true) {
+      Navigator.pushReplacementNamed(context, '/homepage');
+    } else {
+      error('Error signing up user.');
+    }
+
     setState(() {
       _loading = false;
     });
-
-    sendToDB(firstNameText, lastNameText, emailText);
   }
 
-  void sendToDB(firstname, lastname, email) {
-    setState(() {
-      _loading = true;
-    });
-
+  Future<bool> sendToDB(firstname, lastname, email) async {
     final User? user = auth.currentUser;
     if (user!.uid.isNotEmpty) {
-      final docs = db.collection("users").add({
-        "firstname": firstname,
-        "lastname": lastname,
-        "email": email,
-        "userId": user.uid,
-        "amount": 0
-      }).then((DocumentReference doc) {
-        Navigator.pushReplacementNamed(context, '/homepage');
-      });
-
-      setState(() {
-        _loading = false;
-      });
+      try {
+        CollectionReference users =
+            FirebaseFirestore.instance.collection('users');
+        // Call the user's CollectionReference to add a new user
+        await users.add({
+          "firstname": firstname,
+          "lastname": lastname,
+          "email": email,
+          "userId": user.uid,
+          "amount": 0
+        });
+        return true;
+      } catch (e) {
+        return false;
+      }
     }
+
+    return false;
+  }
+
+  Future<bool> doesUserAlreadyExist(String uid) async {
+    await FirebaseFirestore.instance
+        .collection("users")
+        .where('userId', isEqualTo: uid)
+        .limit(1)
+        .get()
+        .then((docs) {
+      if (docs.size >= 1) {
+        return true;
+      } else {
+        return false;
+      }
+    }, onError: (e) {
+      print("Error completing: $e");
+      error(e.toString());
+    });
+
+    return false;
   }
 
   void error(errorMessage) {
