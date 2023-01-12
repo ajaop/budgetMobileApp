@@ -569,30 +569,35 @@ class _AddBudgetState extends State<AddBudget> {
     print("WeeklyLimit: $weeklyLimit");
 
     bool budgetNameExist = await doesNameAlreadyExist(budgetName);
+    bool checkIfAmtIsGreater = await checkAmt(double.parse(budgetAmt));
 
     if (!budgetNameExist) {
       final User? user = auth.currentUser;
 
-      await FirebaseFirestore.instance
-          .collection("expenses")
-          .doc("budgets")
-          .collection(user!.email.toString())
-          .add({
-        "User": user.uid,
-        "BudgetName": budgetName,
-        "lowerCaseBudgetName": budgetName.toString().toLowerCase(),
-        "BudgetAmount": budgetAmt,
-        "startDate": startDate,
-        "endDate": endDate,
-        "DailyLimit": dailyLimit,
-        "WeeklyLimit": weeklyLimit
-      }).then((DocumentReference doc) {
-        print('Budget Created successfully');
-        _dialogBuilder(context, 'SUCCESS', 'Budget Created Successfully');
-      }).onError((e, _) {
-        print("Error writing document: $e");
-        _dialogBuilder(context, 'FAILURE', e.toString());
-      });
+      if (checkIfAmtIsGreater) {
+        await FirebaseFirestore.instance
+            .collection("expenses")
+            .doc("budgets")
+            .collection(user!.email.toString())
+            .add({
+          "User": user.uid,
+          "BudgetName": budgetName,
+          "lowerCaseBudgetName": budgetName.toString().toLowerCase(),
+          "BudgetAmount": budgetAmt,
+          "startDate": startDate,
+          "endDate": endDate,
+          "DailyLimit": dailyLimit,
+          "WeeklyLimit": weeklyLimit
+        }).then((DocumentReference doc) {
+          print('Budget Created successfully');
+          _dialogBuilder(context, 'SUCCESS', 'Budget Created Successfully');
+        }).onError((e, _) {
+          print("Error writing document: $e");
+          _dialogBuilder(context, 'FAILURE', e.toString());
+        });
+      } else {
+        _dialogBuilder(context, 'FAILURE', 'Insuffecient balance');
+      }
     } else {
       _dialogBuilder(context, 'FAILURE', 'budget name exists');
     }
@@ -624,6 +629,27 @@ class _AddBudgetState extends State<AddBudget> {
     });
 
     return isExist;
+  }
+
+  Future<bool> checkAmt(double budgetAmt) async {
+    final User? user = auth.currentUser;
+    String initialAmt = "";
+
+    await FirebaseFirestore.instance
+        .collection("users")
+        .where('userId', isEqualTo: user!.uid)
+        .limit(1)
+        .get()
+        .then((value) => value.docs.forEach((doc) {
+              final data = doc.data()['amount'].toString();
+              initialAmt = data;
+            }));
+
+    if (budgetAmt > double.parse(initialAmt)) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   Future<void> _dialogBuilder(

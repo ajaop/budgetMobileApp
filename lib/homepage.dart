@@ -7,7 +7,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:proj_1/add_budget_page.dart';
-import 'package:proj_1/add_money_page.dart';
+import 'package:intl/intl.dart';
 
 import 'custom_alert_dialog.dart';
 
@@ -82,6 +82,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool _loading = false;
   ScrollController? _controller;
   Data _data = new Data();
+  String totalAmt = '₦ 0.0';
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   FirebaseAuth auth = FirebaseAuth.instance;
@@ -90,6 +91,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     tabController = TabController(length: 2, vsync: this);
+    getDefaultValues();
   }
 
   @override
@@ -109,313 +111,308 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Stack(
       children: [
         Scaffold(
-            body: SafeArea(
-              child: ListView(
-                controller: _controller,
-                children: [
-                  Column(
-                    children: [
-                      const SizedBox(
-                        height: 15.0,
-                      ),
-                      const Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Dashboard',
-                          style: TextStyle(
-                            letterSpacing: 0.5,
-                            fontSize: 22.0,
-                            fontWeight: FontWeight.w900,
-                            color: Color.fromARGB(255, 35, 63, 105),
+            body: RefreshIndicator(
+              onRefresh: () {
+                return getDefaultValues();
+              },
+              child: SafeArea(
+                child: ListView(
+                  controller: _controller,
+                  children: [
+                    Column(
+                      children: [
+                        const SizedBox(
+                          height: 15.0,
+                        ),
+                        const Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Dashboard',
+                            style: TextStyle(
+                              letterSpacing: 0.5,
+                              fontSize: 22.0,
+                              fontWeight: FontWeight.w900,
+                              color: Color.fromARGB(255, 35, 63, 105),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 15.0,
-                      ),
-                      Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 1.0),
-                          child: Column(
-                            children: [
-                              Container(
-                                decoration: const BoxDecoration(
-                                    color: Color.fromARGB(255, 35, 63, 105),
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(30.0))),
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                      25.0, 15.0, 25.0, 15.0),
-                                  child: Column(
-                                    children: [
-                                      const SizedBox(
-                                        height: 45.0,
-                                      ),
-                                      const Align(
-                                        alignment: Alignment.topLeft,
-                                        child: Text('2,000,000',
-                                            style: TextStyle(
-                                                letterSpacing: 0.5,
-                                                fontSize: 27.0,
-                                                fontWeight: FontWeight.w800,
-                                                color: Colors.white)),
-                                      ),
-                                      const SizedBox(
-                                        height: 7.0,
-                                      ),
-                                      const Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                            'Out of 40,000,000 budget for this month',
-                                            style: TextStyle(
-                                                letterSpacing: 0.5,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w200,
-                                                color: Colors.white)),
-                                      ),
-                                      const SizedBox(
-                                        height: 45.0,
-                                      ),
-                                      Align(
-                                        alignment: Alignment.bottomLeft,
-                                        child: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                                primary: Colors.blue,
-                                                minimumSize: const Size(50, 45),
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15.0)),
-                                                textStyle: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 18,
-                                                    letterSpacing: 0.5,
-                                                    fontWeight:
-                                                        FontWeight.bold)),
-                                            onPressed: () {
-                                              showModalBottomSheet<void>(
-                                                  context: context,
-                                                  isScrollControlled: true,
-                                                  enableDrag: false,
-                                                  builder: (BuildContext
-                                                          context) =>
-                                                      StatefulBuilder(builder:
-                                                          (context,
-                                                              setModalState) {
-                                                        return Padding(
-                                                            padding: EdgeInsets.only(
-                                                                bottom: MediaQuery.of(
-                                                                        context)
-                                                                    .viewInsets
-                                                                    .bottom),
-                                                            child: Container(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .all(
-                                                                      25.0),
-                                                              child: Form(
-                                                                key: _formKey,
-                                                                child: Column(
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .min,
-                                                                  children: [
-                                                                    const Align(
-                                                                      alignment:
-                                                                          Alignment
-                                                                              .centerLeft,
-                                                                      child:
-                                                                          Text(
-                                                                        'Amount',
-                                                                        style: TextStyle(
-                                                                            fontFamily:
-                                                                                'OpenSans',
-                                                                            letterSpacing:
-                                                                                0.2,
-                                                                            fontSize:
-                                                                                16.0,
-                                                                            fontWeight: FontWeight
-                                                                                .w600,
-                                                                            color: Color.fromARGB(
-                                                                                255,
-                                                                                67,
-                                                                                65,
-                                                                                65)),
-                                                                      ),
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height:
-                                                                          10.0,
-                                                                    ),
-                                                                    TextFormField(
-                                                                      inputFormatters: [
-                                                                        CurrencyTextInputFormatter(
-                                                                          locale:
-                                                                              'en_NG',
-                                                                          decimalDigits:
-                                                                              0,
-                                                                          symbol:
-                                                                              '₦',
+                        const SizedBox(
+                          height: 15.0,
+                        ),
+                        Padding(
+                            padding: const EdgeInsets.fromLTRB(
+                                20.0, 20.0, 20.0, 1.0),
+                            child: Column(
+                              children: [
+                                Container(
+                                  decoration: const BoxDecoration(
+                                      color: Color.fromARGB(255, 35, 63, 105),
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(30.0))),
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        25.0, 15.0, 25.0, 15.0),
+                                    child: Column(
+                                      children: [
+                                        const SizedBox(
+                                          height: 45.0,
+                                        ),
+                                        Align(
+                                          alignment: Alignment.topLeft,
+                                          child: Text(totalAmt,
+                                              style: const TextStyle(
+                                                  letterSpacing: 0.5,
+                                                  fontSize: 27.0,
+                                                  fontWeight: FontWeight.w800,
+                                                  color: Colors.white)),
+                                        ),
+                                        const SizedBox(
+                                          height: 7.0,
+                                        ),
+                                        const Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                              'Out of 40,000,000 budget for this month',
+                                              style: TextStyle(
+                                                  letterSpacing: 0.5,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w200,
+                                                  color: Colors.white)),
+                                        ),
+                                        const SizedBox(
+                                          height: 45.0,
+                                        ),
+                                        Align(
+                                          alignment: Alignment.bottomLeft,
+                                          child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                  primary: Colors.blue,
+                                                  minimumSize:
+                                                      const Size(50, 45),
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15.0)),
+                                                  textStyle: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 18,
+                                                      letterSpacing: 0.5,
+                                                      fontWeight:
+                                                          FontWeight.bold)),
+                                              onPressed: () {
+                                                showModalBottomSheet<void>(
+                                                    context: context,
+                                                    isScrollControlled: true,
+                                                    enableDrag: false,
+                                                    builder: (BuildContext
+                                                            context) =>
+                                                        StatefulBuilder(builder:
+                                                            (context,
+                                                                setModalState) {
+                                                          return Padding(
+                                                              padding: EdgeInsets.only(
+                                                                  bottom: MediaQuery.of(
+                                                                          context)
+                                                                      .viewInsets
+                                                                      .bottom),
+                                                              child: Container(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        25.0),
+                                                                child: Form(
+                                                                  key: _formKey,
+                                                                  child: Column(
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .min,
+                                                                    children: [
+                                                                      const Align(
+                                                                        alignment:
+                                                                            Alignment.centerLeft,
+                                                                        child:
+                                                                            Text(
+                                                                          'Amount',
+                                                                          style: TextStyle(
+                                                                              fontFamily: 'OpenSans',
+                                                                              letterSpacing: 0.2,
+                                                                              fontSize: 16.0,
+                                                                              fontWeight: FontWeight.w600,
+                                                                              color: Color.fromARGB(255, 67, 65, 65)),
                                                                         ),
-                                                                        LengthLimitingTextInputFormatter(
-                                                                            21),
-                                                                      ],
-                                                                      controller:
-                                                                          _amountController,
-                                                                      decoration:
-                                                                          const InputDecoration(
-                                                                        border:
-                                                                            OutlineInputBorder(),
-                                                                        hintText:
-                                                                            '12,000.00',
                                                                       ),
-                                                                      keyboardType:
-                                                                          TextInputType
-                                                                              .number,
-                                                                      autovalidateMode:
-                                                                          AutovalidateMode
-                                                                              .onUserInteraction,
-                                                                      onFieldSubmitted:
-                                                                          (value) {},
-                                                                      validator:
-                                                                          (value) {
-                                                                        if (value!
-                                                                            .trim()
-                                                                            .isEmpty) {
-                                                                          return 'Amount is required';
-                                                                        }
-                                                                      },
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height:
-                                                                          40.0,
-                                                                    ),
-                                                                    ElevatedButton(
-                                                                        style: ElevatedButton.styleFrom(
-                                                                            shape: RoundedRectangleBorder(
-                                                                              borderRadius: BorderRadius.circular(10),
-                                                                            ),
-                                                                            primary: Colors.blue,
-                                                                            minimumSize: const Size.fromHeight(60),
-                                                                            textStyle: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                                                                        onPressed: !_loading
-                                                                            ? () {
-                                                                                if (_formKey.currentState!.validate()) {
-                                                                                  setState(() {
-                                                                                    _loading = true;
-                                                                                  });
-                                                                                  setModalState(() {
-                                                                                    _loading = true;
-                                                                                  });
+                                                                      SizedBox(
+                                                                        height:
+                                                                            10.0,
+                                                                      ),
+                                                                      TextFormField(
+                                                                        inputFormatters: [
+                                                                          CurrencyTextInputFormatter(
+                                                                            locale:
+                                                                                'en_NG',
+                                                                            decimalDigits:
+                                                                                0,
+                                                                            symbol:
+                                                                                '₦',
+                                                                          ),
+                                                                          LengthLimitingTextInputFormatter(
+                                                                              21),
+                                                                        ],
+                                                                        controller:
+                                                                            _amountController,
+                                                                        decoration:
+                                                                            const InputDecoration(
+                                                                          border:
+                                                                              OutlineInputBorder(),
+                                                                          hintText:
+                                                                              '12,000.00',
+                                                                        ),
+                                                                        keyboardType:
+                                                                            TextInputType.number,
+                                                                        autovalidateMode:
+                                                                            AutovalidateMode.onUserInteraction,
+                                                                        onFieldSubmitted:
+                                                                            (value) {},
+                                                                        validator:
+                                                                            (value) {
+                                                                          if (value!
+                                                                              .trim()
+                                                                              .isEmpty) {
+                                                                            return 'Amount is required';
+                                                                          }
+                                                                        },
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height:
+                                                                            40.0,
+                                                                      ),
+                                                                      ElevatedButton(
+                                                                          style: ElevatedButton.styleFrom(
+                                                                              shape: RoundedRectangleBorder(
+                                                                                borderRadius: BorderRadius.circular(10),
+                                                                              ),
+                                                                              primary: Colors.blue,
+                                                                              minimumSize: const Size.fromHeight(60),
+                                                                              textStyle: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                                                                          onPressed: !_loading
+                                                                              ? () {
+                                                                                  if (_formKey.currentState!.validate()) {
+                                                                                    setState(() {
+                                                                                      _loading = true;
+                                                                                    });
+                                                                                    setModalState(() {
+                                                                                      _loading = true;
+                                                                                    });
 
-                                                                                  String amount = _amountController.text.toString().replaceAll(',', '').replaceAll('₦', '');
+                                                                                    String amount = _amountController.text.toString().replaceAll(',', '').replaceAll('₦', '');
 
-                                                                                  addAmount(double.parse(amount), setModalState);
+                                                                                    addAmount(double.parse(amount), setModalState);
+                                                                                  }
                                                                                 }
-                                                                              }
-                                                                            : null,
-                                                                        child: Text('Add Money')),
-                                                                    SizedBox(
-                                                                      height:
-                                                                          30.0,
-                                                                    )
-                                                                  ],
+                                                                              : null,
+                                                                          child: Text('Add Money')),
+                                                                      SizedBox(
+                                                                        height:
+                                                                            30.0,
+                                                                      )
+                                                                    ],
+                                                                  ),
                                                                 ),
-                                                              ),
-                                                            ));
-                                                      }));
-                                            },
-                                            child: const Text('+ Add Money')),
-                                      ),
-                                      const SizedBox(
-                                        height: 30.0,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 30.0,
-                              ),
-                            ],
-                          )),
-                      SizedBox(
-                        width: 350.0,
-                        child: TabBar(
-                          controller: tabController,
-                          tabs: const [
-                            Tab(text: 'Expenses'),
-                            Tab(
-                              text: 'Income',
-                            )
-                          ],
-                          indicator: BoxDecoration(
-                              borderRadius: BorderRadius.circular(50),
-                              color: const Color.fromARGB(255, 35, 63, 105)),
-                          unselectedLabelColor: Colors.grey[700],
-                          labelColor: Colors.white,
-                          labelStyle: const TextStyle(
-                              fontSize: 15.0, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 500,
-                        height: 400,
-                        child: TabBarView(
-                          controller: tabController,
-                          children: [
-                            Column(children: [
-                              Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                      30.0, 0.0, 30.0, 0.0),
-                                  child: Align(
-                                    alignment: Alignment.topRight,
-                                    child: TextButton(
-                                      style: TextButton.styleFrom(
-                                        primary:
-                                            const Color.fromARGB(255, 1, 8, 14),
-                                        textStyle: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const AddBudget()),
-                                        );
-                                      },
-                                      child: const Text('+ Add Budget'),
+                                                              ));
+                                                        }));
+                                              },
+                                              child: const Text('+ Add Money')),
+                                        ),
+                                        const SizedBox(
+                                          height: 30.0,
+                                        )
+                                      ],
                                     ),
-                                  )),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(15.0, 0, 15.0, 0),
-                                child: Container(
-                                  margin:
-                                      const EdgeInsets.symmetric(vertical: 8.0),
-                                  height: 270.0,
-                                  child: ListView.separated(
-                                    separatorBuilder:
-                                        (BuildContext context, int index) {
-                                      return const SizedBox(height: 15);
-                                    },
-                                    primary: false,
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: _data.getLength(),
-                                    itemBuilder: _itemBuilder,
                                   ),
                                 ),
+                                const SizedBox(
+                                  height: 30.0,
+                                ),
+                              ],
+                            )),
+                        SizedBox(
+                          width: 350.0,
+                          child: TabBar(
+                            controller: tabController,
+                            tabs: const [
+                              Tab(text: 'Expenses'),
+                              Tab(
+                                text: 'Income',
                               )
-                            ]),
-                            const Text("asssss")
-                          ],
+                            ],
+                            indicator: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50),
+                                color: const Color.fromARGB(255, 35, 63, 105)),
+                            unselectedLabelColor: Colors.grey[700],
+                            labelColor: Colors.white,
+                            labelStyle: const TextStyle(
+                                fontSize: 15.0, fontWeight: FontWeight.bold),
+                          ),
                         ),
-                      )
-                    ],
-                  ),
-                ],
+                        SizedBox(
+                          width: 500,
+                          height: 400,
+                          child: TabBarView(
+                            controller: tabController,
+                            children: [
+                              Column(children: [
+                                Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        30.0, 0.0, 30.0, 0.0),
+                                    child: Align(
+                                      alignment: Alignment.topRight,
+                                      child: TextButton(
+                                        style: TextButton.styleFrom(
+                                          primary: const Color.fromARGB(
+                                              255, 1, 8, 14),
+                                          textStyle: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const AddBudget()),
+                                          );
+                                        },
+                                        child: const Text('+ Add Budget'),
+                                      ),
+                                    )),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      15.0, 0, 15.0, 0),
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 8.0),
+                                    height: 270.0,
+                                    child: ListView.separated(
+                                      separatorBuilder:
+                                          (BuildContext context, int index) {
+                                        return const SizedBox(height: 15);
+                                      },
+                                      primary: false,
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: _data.getLength(),
+                                      itemBuilder: _itemBuilder,
+                                    ),
+                                  ),
+                                )
+                              ]),
+                              const Text("asssss")
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
             bottomNavigationBar: BottomNavigationBar(
@@ -557,6 +554,34 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  Future<void> getDefaultValues() async {
+    setState(() {
+      _loading = true;
+    });
+
+    final User? user = auth.currentUser;
+    await FirebaseFirestore.instance
+        .collection("users")
+        .where('userId', isEqualTo: user!.uid)
+        .limit(1)
+        .get()
+        .then((value) => value.docs.forEach((doc) {
+              final data = doc.data()['amount'].toString();
+              var currencyFormat =
+                  NumberFormat.currency(locale: "en_NG", symbol: "₦")
+                      .format(double.parse(data));
+
+              setState(() {
+                totalAmt = currencyFormat.toString();
+              });
+            }));
+
+    setState(() {
+      print('done');
+      _loading = false;
+    });
+  }
+
   Future<void> addAmount(double amount, StateSetter setModalState) async {
     final User? user = auth.currentUser;
     String initialAmt = "";
@@ -585,6 +610,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 });
 
                 _dialogBuilder(context, 'SUCCESS', 'Amount Successfully Added');
+                getDefaultValues();
               }, onError: (e) {
                 _dialogBuilder(context, 'FAILURE', e.toString());
               });
