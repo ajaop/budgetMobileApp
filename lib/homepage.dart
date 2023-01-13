@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,6 +23,7 @@ class HomePage extends StatefulWidget {
 void createBudget(id, budgetTitle, amtPerDay, amtSpent, totalAmt) {}
 
 class Data {
+  /*
   Map fetched_data = {
     "data": [
       {
@@ -46,34 +49,8 @@ class Data {
       },
     ]
   };
-  List? _data;
-  Data() {
-    _data = fetched_data["data"];
-  }
+  */
 
-  int getId(int index) {
-    return _data![index]["id"];
-  }
-
-  String getTitle(int index) {
-    return _data![index]["title"];
-  }
-
-  String getAmtPerDay(int index) {
-    return _data![index]["amtPerDay"];
-  }
-
-  String getAmtSpent(int index) {
-    return _data![index]["amtSpent"];
-  }
-
-  String getTotalAmt(int index) {
-    return _data![index]["totalAmt"];
-  }
-
-  int getLength() {
-    return _data!.length;
-  }
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
@@ -81,7 +58,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late double percent;
   bool _loading = false;
   ScrollController? _controller;
-  Data _data = new Data();
+  var _data;
+  var userEmail;
   String totalAmt = '₦ 0.0';
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
@@ -92,6 +70,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     super.initState();
     tabController = TabController(length: 2, vsync: this);
     getDefaultValues();
+    final User? user = auth.currentUser;
+    setState(() {
+      userEmail = user!.email;
+    });
   }
 
   @override
@@ -103,6 +85,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final User? user = auth.currentUser;
+
     if (user!.uid.isNotEmpty) {
       print("user Id ${user.uid}");
     } else {
@@ -392,16 +375,41 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     margin: const EdgeInsets.symmetric(
                                         vertical: 8.0),
                                     height: 270.0,
-                                    child: ListView.separated(
-                                      separatorBuilder:
-                                          (BuildContext context, int index) {
-                                        return const SizedBox(height: 15);
-                                      },
-                                      primary: false,
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: _data.getLength(),
-                                      itemBuilder: _itemBuilder,
-                                    ),
+                                    child: StreamBuilder<QuerySnapshot>(
+                                        stream: FirebaseFirestore.instance
+                                            .collection("expenses")
+                                            .doc("budgets")
+                                            .collection(user.email.toString())
+                                            .snapshots(),
+                                        builder: (BuildContext context,
+                                            AsyncSnapshot<QuerySnapshot>
+                                                snapshot) {
+                                          if (!snapshot.hasData) {
+                                            Center(
+                                              child: Text('No Items'),
+                                            );
+                                          }
+                                          if (snapshot.hasError) {
+                                            return const Text(
+                                                'Something went wrong.');
+                                          }
+
+                                          return ListView.separated(
+                                            separatorBuilder:
+                                                (BuildContext context,
+                                                    int index) {
+                                              _data =
+                                                  snapshot.data!.docs[index];
+                                              print(_data);
+                                              return const SizedBox(height: 15);
+                                            },
+                                            primary: false,
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount:
+                                                snapshot.data!.docs.length,
+                                            itemBuilder: _itemBuilder,
+                                          );
+                                        }),
                                   ),
                                 )
                               ]),
@@ -445,9 +453,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Widget _itemBuilder(BuildContext context, int index) {
-    percent = ((double.parse(_data.getAmtSpent(index)) * 100) /
+    var item = _data;
+    /* percent = ((double.parse(_data.getAmtSpent(index)) * 100) /
             double.parse(_data.getTotalAmt(index))) /
-        10;
+        10;*/
+    percent = 0.7;
     print(percent);
     return SizedBox(
       width: 350,
@@ -482,7 +492,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 Align(
                                   alignment: Alignment.topLeft,
                                   child: Text(
-                                    _data.getTitle(index),
+                                    item['BudgetName'],
                                     style: const TextStyle(
                                         fontSize: 17.0,
                                         fontWeight: FontWeight.w700,
@@ -494,8 +504,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 ),
                                 Align(
                                   alignment: Alignment.bottomLeft,
-                                  child: Text(
-                                      '${_data.getAmtPerDay(index)} per day',
+                                  child: Text('${item['DailyLimit']} per day',
                                       style: const TextStyle(
                                           letterSpacing: 0.5,
                                           fontSize: 17,
@@ -536,7 +545,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       height: 15.0,
                     ),
                     Text(
-                      "Spent ${_data.getAmtSpent(index)} from ${_data.getTotalAmt(index)}",
+                      "Spent ${/*_data.getAmtSpent(index)*/ 100} from ${item['BudgetAmount']}",
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 18.0,
@@ -577,7 +586,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             }));
 
     setState(() {
-      print('done');
       _loading = false;
     });
   }
@@ -585,6 +593,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<void> addAmount(double amount, StateSetter setModalState) async {
     final User? user = auth.currentUser;
     String initialAmt = "";
+    setState(() {
+      userEmail = user!.email;
+    });
 
     await FirebaseFirestore.instance
         .collection("users")
