@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<List<Budgets>>? budgetsList;
   List<Budgets>? retrievedBudgetList;
   bool _imageLoaded = false;
-  var img = Image.network(src);
+  //var img = Image.network(src);
   var placeholder = AssetImage('images/profile.png');
 
   @override
