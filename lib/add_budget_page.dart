@@ -7,6 +7,7 @@ import 'package:currency_text_input_formatter/currency_text_input_formatter.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'custom_alert_dialog.dart';
+import 'database_service.dart';
 
 class AddBudget extends StatefulWidget {
   const AddBudget({Key? key}) : super(key: key);
@@ -23,6 +24,7 @@ class _AddBudgetState extends State<AddBudget> {
   final _endDateController = TextEditingController();
   final _dailyLimitController = TextEditingController();
   final _weeklyLimitController = TextEditingController();
+  DatabaseService service = DatabaseService();
   bool _loading = false, isExist = false;
   FirebaseAuth auth = FirebaseAuth.instance;
   var startDate, endDate;
@@ -152,7 +154,8 @@ class _AddBudgetState extends State<AddBudget> {
                         onChanged: (text) {
                           if (_startDateController.text.isNotEmpty &&
                               _endDateController.text.isNotEmpty) {
-                            var noOfDays = daysBetween(startDate, endDate);
+                            var noOfDays =
+                                service.daysBetween(startDate, endDate);
                             if (noOfDays == 0) {
                               calculateDailyWeeklyLimit(1, text);
                               return;
@@ -245,8 +248,9 @@ class _AddBudgetState extends State<AddBudget> {
                                                           .text.isNotEmpty &&
                                                       _endDateController
                                                           .text.isNotEmpty) {
-                                                    var noOfDays = daysBetween(
-                                                        startDate, endDate);
+                                                    var noOfDays =
+                                                        service.daysBetween(
+                                                            startDate, endDate);
                                                     if (noOfDays == 0) {
                                                       calculateDailyWeeklyLimit(
                                                           1,
@@ -351,7 +355,8 @@ class _AddBudgetState extends State<AddBudget> {
                                                         _endDateController
                                                             .text.isNotEmpty) {
                                                       var noOfDays =
-                                                          daysBetween(startDate,
+                                                          service.daysBetween(
+                                                              startDate,
                                                               endDate);
                                                       if (noOfDays == 0) {
                                                         calculateDailyWeeklyLimit(
@@ -550,13 +555,6 @@ class _AddBudgetState extends State<AddBudget> {
         TextPosition(offset: dailyLimit.toString().length),
       ),
     );
-  }
-
-  int daysBetween(DateTime from, DateTime to) {
-    from = DateTime(from.year, from.month, from.day);
-    to = DateTime(to.year, to.month, to.day);
-    print("no Of Days: ${(to.difference(from).inHours / 24).round()}");
-    return (to.difference(from).inHours / 24).round();
   }
 
   void storeValueInDb(budgetName, budgetAmt, startDate, endDate, dailyLimit,
