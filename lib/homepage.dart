@@ -11,7 +11,9 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:proj_1/add_budget_page.dart';
 import 'package:intl/intl.dart';
 
+import 'Budgets.dart';
 import 'custom_alert_dialog.dart';
+import 'database_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -20,60 +22,42 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-void createBudget(id, budgetTitle, amtPerDay, amtSpent, totalAmt) {}
-
-class Data {
-  /*
-  Map fetched_data = {
-    "data": [
-      {
-        "id": 1,
-        "title": "Food & Shopping",
-        "amtPerDay": "140",
-        "amtSpent": "120",
-        "totalAmt": "1700"
-      },
-      {
-        "id": 2,
-        "title": "Fasion",
-        "amtPerDay": "200",
-        "amtSpent": "50",
-        "totalAmt": "3000"
-      },
-      {
-        "id": 3,
-        "title": "Education",
-        "amtPerDay": "10",
-        "amtSpent": "50",
-        "totalAmt": "17000"
-      },
-    ]
-  };
-  */
-
-}
-
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late TabController tabController;
   late double percent;
   bool _loading = false;
   ScrollController? _controller;
-  var _data;
   var userEmail;
   String totalAmt = '₦ 0.0';
+  String budgetAmt = '₦ 0.0';
+  String dailyAmt = '₦ 0.0';
+  String weeklyAmt = '₦ 0.0';
+  String amtSpent = '₦ 0.0';
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   FirebaseAuth auth = FirebaseAuth.instance;
+  DatabaseService service = DatabaseService();
+  Future<List<Budgets>>? budgetsList;
+  List<Budgets>? retrievedBudgetList;
+  bool _imageLoaded = false;
+  var img = Image.network(src);
+  var placeholder = AssetImage('images/profile.png');
 
   @override
   void initState() {
     super.initState();
     tabController = TabController(length: 2, vsync: this);
+    getAllData();
+  }
+
+  Future<void> getAllData() async {
     getDefaultValues();
-    final User? user = auth.currentUser;
-    setState(() {
-      userEmail = user!.email;
-    });
+    _initRetrieval();
+  }
+
+  Future<void> _initRetrieval() async {
+    budgetsList = service.retrieveBudgets();
+    retrievedBudgetList = await service.retrieveBudgets();
   }
 
   @override
@@ -96,7 +80,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         Scaffold(
             body: RefreshIndicator(
               onRefresh: () {
-                return getDefaultValues();
+                return getAllData();
               },
               child: SafeArea(
                 child: ListView(
@@ -107,20 +91,34 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         const SizedBox(
                           height: 15.0,
                         ),
-                        const Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Dashboard',
-                            style: TextStyle(
-                              letterSpacing: 0.5,
-                              fontSize: 22.0,
-                              fontWeight: FontWeight.w900,
-                              color: Color.fromARGB(255, 35, 63, 105),
+                        Row(
+                          children: const [
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(25.0, 0, 8.0, 0),
+                              child: CircleAvatar(
+                                radius: 33.0,
+                                backgroundImage:
+                                    ExactAssetImage('images/profile.png'),
+                                backgroundColor:
+                                    Color.fromARGB(255, 223, 220, 220),
+                              ),
                             ),
-                          ),
+                            SizedBox(
+                              width: 50.0,
+                            ),
+                            Text(
+                              'Dashboard',
+                              style: TextStyle(
+                                letterSpacing: 0.5,
+                                fontSize: 22.0,
+                                fontWeight: FontWeight.w900,
+                                color: Color.fromARGB(255, 35, 63, 105),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(
-                          height: 15.0,
+                          height: 8.0,
                         ),
                         Padding(
                             padding: const EdgeInsets.fromLTRB(
@@ -339,7 +337,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                         SizedBox(
                           width: 500,
-                          height: 400,
+                          height: 450,
                           child: TabBarView(
                             controller: tabController,
                             children: [
@@ -374,41 +372,42 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   child: Container(
                                     margin: const EdgeInsets.symmetric(
                                         vertical: 8.0),
-                                    height: 270.0,
-                                    child: StreamBuilder<QuerySnapshot>(
-                                        stream: FirebaseFirestore.instance
-                                            .collection("expenses")
-                                            .doc("budgets")
-                                            .collection(user.email.toString())
-                                            .snapshots(),
+                                    height: 350.0,
+                                    child: FutureBuilder(
+                                        future: budgetsList,
                                         builder: (BuildContext context,
-                                            AsyncSnapshot<QuerySnapshot>
+                                            AsyncSnapshot<List<Budgets>>
                                                 snapshot) {
-                                          if (!snapshot.hasData) {
+                                          if (snapshot.connectionState ==
+                                                  ConnectionState.done &&
+                                              retrievedBudgetList!.isEmpty) {
                                             Center(
                                               child: Text('No Items'),
                                             );
                                           }
-                                          if (snapshot.hasError) {
-                                            return const Text(
-                                                'Something went wrong.');
+                                          if (snapshot.hasData &&
+                                              snapshot.data != null) {
+                                            return ListView.separated(
+                                              separatorBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                return const SizedBox(
+                                                    height: 15);
+                                              },
+                                              primary: false,
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount:
+                                                  retrievedBudgetList!.length,
+                                              itemBuilder: _itemBuilder,
+                                            );
+                                          } else {
+                                            return Center(
+                                              child: SpinKitSquareCircle(
+                                                color: Colors.blue[500],
+                                                size: 60.0,
+                                              ),
+                                            );
                                           }
-
-                                          return ListView.separated(
-                                            separatorBuilder:
-                                                (BuildContext context,
-                                                    int index) {
-                                              _data =
-                                                  snapshot.data!.docs[index];
-                                              print(_data);
-                                              return const SizedBox(height: 15);
-                                            },
-                                            primary: false,
-                                            scrollDirection: Axis.horizontal,
-                                            itemCount:
-                                                snapshot.data!.docs.length,
-                                            itemBuilder: _itemBuilder,
-                                          );
                                         }),
                                   ),
                                 )
@@ -453,15 +452,40 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Widget _itemBuilder(BuildContext context, int index) {
-    var item = _data;
-    /* percent = ((double.parse(_data.getAmtSpent(index)) * 100) /
-            double.parse(_data.getTotalAmt(index))) /
-        10;*/
-    percent = 0.7;
-    print(percent);
+    String startDay = retrievedBudgetList![index].startDate.substring(0, 2);
+    String startMonth = retrievedBudgetList![index].startDate.substring(3, 5);
+    String startYear = retrievedBudgetList![index].startDate.substring(6, 10);
+    DateTime start = DateTime.parse('$startYear-$startMonth-$startDay');
+
+    String endDay = retrievedBudgetList![index].endDate.substring(0, 2);
+    String endMonth = retrievedBudgetList![index].endDate.substring(3, 5);
+    String endYear = retrievedBudgetList![index].endDate.substring(6, 10);
+    DateTime end = DateTime.parse('$endYear-$endMonth-$endDay');
+
+    int daysFromToday = service.daysBetween(end, DateTime.now());
+    double amountSpent = 0.0;
+    if (daysFromToday.isNegative) {
+      amountSpent = 0;
+    } else {
+      double amountSpent =
+          double.parse(retrievedBudgetList![index].dailyLimit) * daysFromToday;
+    }
+
+    budgetAmt = NumberFormat.currency(locale: "en_NG", symbol: "₦")
+        .format(double.parse(retrievedBudgetList![index].budgetAmount));
+    dailyAmt = NumberFormat.currency(locale: "en_NG", symbol: "₦")
+        .format(double.parse(retrievedBudgetList![index].dailyLimit));
+    weeklyAmt = NumberFormat.currency(locale: "en_NG", symbol: "₦")
+        .format(double.parse(retrievedBudgetList![index].weeklyLimit));
+    amtSpent =
+        NumberFormat.currency(locale: "en_NG", symbol: "₦").format(amountSpent);
+    percent =
+        amountSpent / double.parse(retrievedBudgetList![index].budgetAmount);
+
     return SizedBox(
       width: 350,
       child: Card(
+          elevation: 0.5,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0),
           ),
@@ -492,7 +516,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 Align(
                                   alignment: Alignment.topLeft,
                                   child: Text(
-                                    item['BudgetName'],
+                                    retrievedBudgetList![index].budgetName,
                                     style: const TextStyle(
                                         fontSize: 17.0,
                                         fontWeight: FontWeight.w700,
@@ -504,7 +528,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 ),
                                 Align(
                                   alignment: Alignment.bottomLeft,
-                                  child: Text('${item['DailyLimit']} per day',
+                                  child: Text('${dailyAmt} per day',
                                       style: const TextStyle(
                                           letterSpacing: 0.5,
                                           fontSize: 17,
@@ -545,12 +569,32 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       height: 15.0,
                     ),
                     Text(
-                      "Spent ${/*_data.getAmtSpent(index)*/ 100} from ${item['BudgetAmount']}",
+                      '${amountSpent} Spent from ${budgetAmt}',
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 18.0,
                         letterSpacing: 0.5,
                       ),
+                    ),
+                    const SizedBox(
+                      height: 30.0,
+                    ),
+                    Text(
+                      'Start Date : ${DateFormat.yMMMMd().format(start)}',
+                      style: const TextStyle(
+                          letterSpacing: 0.5,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(
+                      height: 10.0,
+                    ),
+                    Text(
+                      'End Date : ${DateFormat.yMMMMd().format(end)}',
+                      style: const TextStyle(
+                          letterSpacing: 0.5,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(
                       height: 15.0,
