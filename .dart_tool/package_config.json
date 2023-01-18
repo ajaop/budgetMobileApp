@@ -62,6 +62,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "cross_file",
+      "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/cross_file-0.3.3+2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "cupertino_icons",
       "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/cupertino_icons-1.0.5",
       "packageUri": "lib/",
@@ -128,6 +134,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "flutter_plugin_android_lifecycle",
+      "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_plugin_android_lifecycle-2.0.7",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "flutter_spinkit",
       "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_spinkit-5.1.0",
       "packageUri": "lib/",
@@ -152,8 +164,44 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "http",
+      "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/http-0.13.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
       "name": "http_parser",
       "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/http_parser-4.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "image_picker",
+      "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker-0.8.6",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
+      "name": "image_picker_android",
+      "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker_android-0.8.5+4",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
+      "name": "image_picker_for_web",
+      "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker_for_web-2.1.10",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "image_picker_ios",
+      "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker_ios-0.8.6+5",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
+      "name": "image_picker_platform_interface",
+      "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker_platform_interface-2.6.2",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -296,7 +344,7 @@
       "languageVersion": "2.16"
     }
   ],
-  "generated": "2023-01-17T14:31:03.837617Z",
+  "generated": "2023-01-18T14:21:46.167236Z",
   "generator": "pub",
   "generatorVersion": "2.16.0"
 }

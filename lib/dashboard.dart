@@ -49,6 +49,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   }
 
   Future<void> getAllData() async {
+    setState(() {
+      _loading = true;
+    });
     getDefaultValues();
     _initRetrieval();
   }
@@ -399,7 +402,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                               snapshot) {
                                         if (snapshot.connectionState ==
                                                 ConnectionState.done &&
-                                            retrievedBudgetList!.isEmpty) {
+                                            retrievedBudgetList?.isEmpty ==
+                                                null) {
                                           Center(
                                             child: Text('No Items'),
                                           );
@@ -609,10 +613,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   }
 
   Future<void> getDefaultValues() async {
-    setState(() {
-      _loading = true;
-    });
-
     final User? user = auth.currentUser;
 
     await FirebaseFirestore.instance
@@ -631,7 +631,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               });
             }));
 
-    if (user.photoURL.toString() == null) {
+    if (user.photoURL?.isEmpty == null) {
       setState(() => _imageLoaded = false);
     } else {
       img = Image.network(user.photoURL.toString());
