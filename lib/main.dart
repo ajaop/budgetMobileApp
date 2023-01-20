@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:proj_1/dashboard.dart';
 import 'package:proj_1/homepage.dart';
 import 'package:proj_1/signin.dart';
 import 'package:proj_1/user_page.dart';
@@ -23,7 +24,7 @@ class ProjApp extends StatelessWidget {
     return MaterialApp(routes: {
       '/': (context) => const SignIn(),
       '/homepage': (context) => HomePage(),
-      '/userpage': (context) => UserPage()
+      '/userpage': (context) => UserPage(),
     });
   }
 }

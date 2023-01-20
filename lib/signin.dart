@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:proj_1/homepage.dart';
 import 'package:proj_1/signup.dart';
 
 class SignIn extends StatefulWidget {
@@ -12,6 +14,12 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
+  @override
+  void initState() {
+    super.initState();
+    checkIfLoggedIn();
+  }
+
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -24,6 +32,19 @@ class _SignInState extends State<SignIn> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void checkIfLoggedIn() {
+    final User? user = auth.currentUser;
+
+    if (user?.uid.isEmpty == null) {
+      print("Logged in");
+    } else {
+      SchedulerBinding.instance!.addPostFrameCallback((_) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (BuildContext context) => HomePage()));
+      });
+    }
   }
 
   void login(username, pass) async {

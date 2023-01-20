@@ -102,6 +102,7 @@ class _AddBudgetState extends State<AddBudget> {
                       ),
                       TextFormField(
                         controller: _budgetTitleController,
+                        maxLength: 25,
                         inputFormatters: <TextInputFormatter>[
                           FilteringTextInputFormatter.allow(
                               RegExp("[a-zA-Z ]")),

@@ -98,7 +98,7 @@ class _CustomDialogState extends State<CustomDialog> {
                       fontWeight: FontWeight.bold)),
               onPressed: () {
                 if (widget.title.contains('SUCCESS')) {
-                  Navigator.popUntil(context, ModalRoute.withName("/homepage"));
+                  Navigator.popUntil(context, ModalRoute.withName('/homepage'));
                 } else {
                   Navigator.of(context).pop();
                 }

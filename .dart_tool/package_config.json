@@ -122,6 +122,24 @@
       "languageVersion": "2.16"
     },
     {
+      "name": "firebase_storage",
+      "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_storage-10.3.11",
+      "packageUri": "lib/",
+      "languageVersion": "2.16"
+    },
+    {
+      "name": "firebase_storage_platform_interface",
+      "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_storage_platform_interface-4.1.19",
+      "packageUri": "lib/",
+      "languageVersion": "2.16"
+    },
+    {
+      "name": "firebase_storage_web",
+      "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_storage_web-3.3.9",
+      "packageUri": "lib/",
+      "languageVersion": "2.16"
+    },
+    {
       "name": "flutter",
       "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/packages/flutter",
       "packageUri": "lib/",
@@ -344,7 +362,7 @@
       "languageVersion": "2.16"
     }
   ],
-  "generated": "2023-01-18T14:21:46.167236Z",
+  "generated": "2023-01-19T11:58:29.241487Z",
   "generator": "pub",
   "generatorVersion": "2.16.0"
 }

@@ -2,12 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:proj_1/Budgets.dart';
 import 'package:intl/intl.dart';
+import 'package:proj_1/signin.dart';
 
 import 'add_budget_page.dart';
 import 'custom_alert_dialog.dart';
@@ -71,12 +73,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final User? user = auth.currentUser;
 
-    print('user pictures ${user!.photoURL.toString()}');
-
-    if (user.uid.isNotEmpty) {
-      print("user Id ${user.uid}");
+    if (user?.uid.isEmpty == null) {
+      SchedulerBinding.instance!.addPostFrameCallback((_) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (BuildContext context) => SignIn()));
+      });
     } else {
-      Navigator.pushReplacementNamed(context, '/');
+      print("user Id ${user!.uid}");
     }
 
     return Stack(
@@ -98,23 +101,22 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       Row(
                         children: [
                           Padding(
-                            padding: EdgeInsets.fromLTRB(25.0, 0, 8.0, 0),
-                            child: _imageLoaded
-                                ? CircleAvatar(
-                                    radius: 40.0,
-                                    foregroundColor:
-                                        Color.fromARGB(255, 223, 220, 220),
-                                    backgroundImage:
-                                        NetworkImage(user.photoURL.toString()),
-                                  )
-                                : CircleAvatar(
-                                    radius: 40.0,
-                                    foregroundColor:
-                                        Color.fromARGB(255, 223, 220, 220),
-                                    backgroundImage:
-                                        AssetImage('images/profile.png'),
-                                  ),
-                          ),
+                              padding: EdgeInsets.fromLTRB(25.0, 0, 8.0, 0),
+                              child: _imageLoaded
+                                  ? CircleAvatar(
+                                      radius: 40.0,
+                                      foregroundColor:
+                                          Color.fromARGB(255, 223, 220, 220),
+                                      backgroundImage: NetworkImage(
+                                          user!.photoURL.toString()),
+                                    )
+                                  : const CircleAvatar(
+                                      radius: 40.0,
+                                      foregroundColor:
+                                          Color.fromARGB(255, 223, 220, 220),
+                                      backgroundImage:
+                                          AssetImage('images/profile.png'),
+                                    )),
                           const SizedBox(
                             width: 50.0,
                           ),
@@ -196,6 +198,14 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                                   context: context,
                                                   isScrollControlled: true,
                                                   enableDrag: false,
+                                                  shape:
+                                                      const RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.vertical(
+                                                      top:
+                                                          Radius.circular(35.0),
+                                                    ),
+                                                  ),
                                                   builder: (BuildContext
                                                           context) =>
                                                       StatefulBuilder(builder:
@@ -419,7 +429,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                             primary: false,
                                             scrollDirection: Axis.horizontal,
                                             itemCount:
-                                                retrievedBudgetList!.length,
+                                                retrievedBudgetList?.length ??
+                                                    0,
                                             itemBuilder: _itemBuilder,
                                           );
                                         } else {
@@ -496,7 +507,82 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           ),
           child: InkWell(
             onTap: () {
-              debugPrint('Card tapped.');
+              showModalBottomSheet<void>(
+                  context: context,
+                  isScrollControlled: true,
+                  enableDrag: false,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(35.0),
+                    ),
+                  ),
+                  builder: (BuildContext context) =>
+                      StatefulBuilder(builder: (context, setModalState) {
+                        return Padding(
+                            padding: EdgeInsets.only(
+                                bottom:
+                                    MediaQuery.of(context).viewInsets.bottom),
+                            child: Container(
+                              padding: const EdgeInsets.all(25.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(
+                                    height: 40.0,
+                                  ),
+                                  ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                          ),
+                                          primary:
+                                              Color.fromARGB(255, 35, 63, 105),
+                                          minimumSize:
+                                              const Size.fromHeight(60),
+                                          textStyle: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w700)),
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const AddBudget()));
+                                      },
+                                      child: Text('Edit Budget')),
+                                  SizedBox(
+                                    height: 50.0,
+                                  ),
+                                  ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                        ),
+                                        primary: Colors.red[900],
+                                        minimumSize: const Size.fromHeight(60),
+                                        textStyle: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                                      onPressed: () {
+                                        _deleteBudgetDialogBuilder(
+                                            context,
+                                            retrievedBudgetList![index]
+                                                .budgetName,
+                                            setModalState);
+                                      },
+                                      child: Text('Delete Budget')),
+                                  SizedBox(
+                                    height: 70.0,
+                                  )
+                                ],
+                              ),
+                            ));
+                      }));
             },
             child: Column(
               children: [
@@ -541,7 +627,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                           color: Colors.white70)),
                                 )
                               ],
-                            )
+                            ),
                           ],
                         ),
                       ],
@@ -695,6 +781,22 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     });
   }
 
+  Future<void> deleteBudget(String budgetName) async {
+    /* final User? user = auth.currentUser;
+
+    await FirebaseFirestore.instance
+        .collection("expenses")
+        .doc("budgets")
+        .collection(user!.email.toString())
+        .where('lowerCaseBudgetName', isEqualTo: budgetName.toLowerCase())
+        .limit(1)
+        .get()
+        .then((value) => value.docs.forEach((doc) {
+              doc.reference.delete().then((value) {});
+            }));
+            */
+  }
+
   Future<void> _dialogBuilder(
       BuildContext context, String title, String description) {
     return showDialog(
@@ -703,6 +805,94 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           barrierColor:
           Colors.black26;
           return CustomDialog(title: title, description: description);
+        });
+  }
+
+  Future<void> _deleteBudgetDialogBuilder(
+      BuildContext context, String budgetName, setModalState) {
+    print(budgetName);
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          barrierColor:
+          Colors.black26;
+          return Dialog(
+            elevation: 0,
+            backgroundColor: Color(0xffffffff),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 20.0,
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(50.0, 20, 50.0, 20),
+                  child: Center(
+                    child: const Text(
+                      'Are you sure you want to Delete this budget ? ',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 18.0, fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 60.0,
+                    ),
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            elevation: 5.0,
+                            primary: Color.fromARGB(255, 183, 181, 181),
+                            minimumSize: const Size(100, 50),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0))),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('No', style: TextStyle(fontSize: 17.0))),
+                    SizedBox(
+                      width: 20.0,
+                    ),
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            elevation: 5.0,
+                            primary: Colors.red[900],
+                            minimumSize: const Size(100, 50),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0))),
+                        onPressed: !_loading
+                            ? () {
+                                setState(() {
+                                  _loading = true;
+                                });
+
+                                setModalState(() {
+                                  _loading = true;
+                                });
+
+                                deleteBudget(budgetName);
+                              }
+                            : null,
+                        child: Text(
+                          'Yes',
+                          style: TextStyle(fontSize: 17.0),
+                        )),
+                  ],
+                ),
+                SizedBox(
+                  height: 40.0,
+                )
+              ],
+            ),
+          );
         });
   }
 }
