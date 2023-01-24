@@ -41,8 +41,7 @@ class _SignInState extends State<SignIn> {
       print("Logged in");
     } else {
       SchedulerBinding.instance!.addPostFrameCallback((_) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (BuildContext context) => HomePage()));
+        Navigator.pushReplacementNamed(context, '/homepage');
       });
     }
   }

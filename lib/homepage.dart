@@ -1,14 +1,10 @@
-import 'dart:convert';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:proj_1/dashboard.dart';
+import 'package:proj_1/finances_page.dart';
 import 'package:proj_1/user_page.dart';
 
 import 'Budgets.dart';
-import 'custom_alert_dialog.dart';
 import 'database_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,7 +14,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+class _HomePageState extends State<HomePage> {
   late double percent;
   int _index = 0;
   FirebaseAuth auth = FirebaseAuth.instance;
@@ -33,18 +29,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    print('current route ${ModalRoute.of(context)!.settings.name}');
     Widget widget = Container();
     switch (_index) {
       case 0:
-        widget = Dashboard();
+        widget = const Dashboard();
         break;
 
       case 1:
-        //  Navigator.pushNamed(context, '/userpage');
+        const FinancesPage();
         break;
 
       case 2:
-        widget = UserPage();
+        widget = const UserPage();
         break;
     }
 

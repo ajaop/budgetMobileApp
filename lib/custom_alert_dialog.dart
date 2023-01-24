@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:proj_1/dashboard.dart';
 
 class CustomDialog extends StatefulWidget {
   CustomDialog({
@@ -18,6 +19,7 @@ class CustomDialog extends StatefulWidget {
 }
 
 class _CustomDialogState extends State<CustomDialog> {
+  Dashboard dash = const Dashboard();
   @override
   Widget build(BuildContext context) {
     if (widget.title.contains('SUCCESS')) {

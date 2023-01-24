@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:proj_1/add_budget_page.dart';
 import 'package:proj_1/dashboard.dart';
 import 'package:proj_1/homepage.dart';
 import 'package:proj_1/signin.dart';
@@ -21,10 +22,10 @@ class ProjApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(routes: {
+    return MaterialApp(initialRoute: '/', routes: {
       '/': (context) => const SignIn(),
-      '/homepage': (context) => HomePage(),
-      '/userpage': (context) => UserPage(),
+      '/homepage': (context) => const HomePage(),
+      '/alertdialog': (context) => AlertDialog(),
     });
   }
 }

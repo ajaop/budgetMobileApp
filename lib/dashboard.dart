@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,6 +10,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:proj_1/Budgets.dart';
 import 'package:intl/intl.dart';
+import 'package:proj_1/Transactions.dart';
+import 'package:proj_1/finances_page.dart';
 import 'package:proj_1/signin.dart';
 
 import 'add_budget_page.dart';
@@ -36,10 +39,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   int _index = 0;
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
+  final _amountDescriptionController = TextEditingController();
   FirebaseAuth auth = FirebaseAuth.instance;
   DatabaseService service = DatabaseService();
   Future<List<Budgets>>? budgetsList;
   List<Budgets>? retrievedBudgetList;
+  Future<List<Transactions>>? transactionsCreditList;
+  List<Transactions>? retrievedTransactionsCreditList;
   bool _imageLoaded = false;
   var img = null;
 
@@ -61,11 +67,21 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   Future<void> _initRetrieval() async {
     budgetsList = service.retrieveBudgets();
     retrievedBudgetList = await service.retrieveBudgets();
+    transactionsCreditList = service.retrieveTransactionsCredit();
+    retrievedTransactionsCreditList =
+        await service.retrieveTransactionsCredit();
+
+    retrievedTransactionsCreditList!.sort(
+      (a, b) {
+        return b.transactionDate.compareTo(a.transactionDate);
+      },
+    );
   }
 
   @override
   void dispose() {
     _amountController.dispose();
+    _amountDescriptionController.dispose();
     super.dispose();
   }
 
@@ -107,8 +123,25 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                       radius: 40.0,
                                       foregroundColor:
                                           Color.fromARGB(255, 223, 220, 220),
-                                      backgroundImage: NetworkImage(
-                                          user!.photoURL.toString()),
+                                      child: CachedNetworkImage(
+                                        imageUrl: user!.photoURL.toString(),
+                                        imageBuilder:
+                                            (context, imageProvider) =>
+                                                Container(
+                                          width: 80.0,
+                                          height: 80.0,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            image: DecorationImage(
+                                                image: imageProvider,
+                                                fit: BoxFit.cover),
+                                          ),
+                                        ),
+                                        placeholder: (context, url) =>
+                                            CircularProgressIndicator(),
+                                        errorWidget: (context, url, error) =>
+                                            Icon(Icons.error),
+                                      ),
                                     )
                                   : const CircleAvatar(
                                       radius: 40.0,
@@ -295,6 +328,79 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                                                         }
                                                                       },
                                                                     ),
+                                                                    const SizedBox(
+                                                                      height:
+                                                                          40.0,
+                                                                    ),
+                                                                    const Align(
+                                                                      alignment:
+                                                                          Alignment
+                                                                              .centerLeft,
+                                                                      child:
+                                                                          Text(
+                                                                        'Description',
+                                                                        style: TextStyle(
+                                                                            fontFamily:
+                                                                                'OpenSans',
+                                                                            letterSpacing:
+                                                                                0.2,
+                                                                            fontSize:
+                                                                                16.0,
+                                                                            fontWeight: FontWeight
+                                                                                .w600,
+                                                                            color: Color.fromARGB(
+                                                                                255,
+                                                                                67,
+                                                                                65,
+                                                                                65)),
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height:
+                                                                          10.0,
+                                                                    ),
+                                                                    TextFormField(
+                                                                      controller:
+                                                                          _amountDescriptionController,
+                                                                      maxLength:
+                                                                          15,
+                                                                      inputFormatters: <
+                                                                          TextInputFormatter>[
+                                                                        FilteringTextInputFormatter.allow(
+                                                                            RegExp("[a-zA-Z ]")),
+                                                                        LengthLimitingTextInputFormatter(
+                                                                            100),
+                                                                      ],
+                                                                      decoration:
+                                                                          const InputDecoration(
+                                                                        border:
+                                                                            OutlineInputBorder(),
+                                                                        hintText:
+                                                                            'Bonus Amount',
+                                                                      ),
+                                                                      keyboardType:
+                                                                          TextInputType
+                                                                              .text,
+                                                                      textCapitalization:
+                                                                          TextCapitalization
+                                                                              .sentences,
+                                                                      autovalidateMode:
+                                                                          AutovalidateMode
+                                                                              .onUserInteraction,
+                                                                      onFieldSubmitted:
+                                                                          (value) {},
+                                                                      validator:
+                                                                          (value) {
+                                                                        if (value!
+                                                                            .trim()
+                                                                            .isEmpty) {
+                                                                          return 'Description is required';
+                                                                        } else if (value
+                                                                            .startsWith(RegExp(r'[0-9]'))) {
+                                                                          return 'Description is not valid';
+                                                                        }
+                                                                      },
+                                                                    ),
                                                                     SizedBox(
                                                                       height:
                                                                           40.0,
@@ -317,9 +423,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                                                                     _loading = true;
                                                                                   });
 
-                                                                                  String amount = _amountController.text.toString().replaceAll(',', '').replaceAll('₦', '');
+                                                                                  String amount = _amountController.text.toString().replaceAll(',', '').replaceAll('₦', '').trim();
+                                                                                  String description = _amountDescriptionController.text.toString().trim();
 
-                                                                                  addAmount(double.parse(amount), setModalState);
+                                                                                  addAmount(double.parse(amount), description, setModalState);
                                                                                 }
                                                                               }
                                                                             : null,
@@ -393,7 +500,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   const AddBudget()),
-                                        );
+                                        ).then((_) {
+                                          setState(() {
+                                            getAllData();
+                                          });
+                                        });
                                       },
                                       child: const Text('+ Add Budget'),
                                     ),
@@ -414,24 +525,44 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                                 ConnectionState.done &&
                                             retrievedBudgetList?.isEmpty ==
                                                 null) {
-                                          Center(
-                                            child: Text('No Items'),
+                                          const Center(
+                                            child: Text(
+                                              'No Budgets Yet',
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 20.0),
+                                            ),
+                                          );
+                                        }
+                                        if (retrievedBudgetList?.isEmpty ??
+                                            true) {
+                                          return const Center(
+                                            child: Text(
+                                              'No Budgets Yet',
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 20.0),
+                                            ),
                                           );
                                         }
                                         if (snapshot.hasData &&
                                             snapshot.data != null) {
-                                          return ListView.separated(
-                                            separatorBuilder:
-                                                (BuildContext context,
-                                                    int index) {
-                                              return const SizedBox(height: 15);
-                                            },
-                                            primary: false,
-                                            scrollDirection: Axis.horizontal,
-                                            itemCount:
-                                                retrievedBudgetList?.length ??
-                                                    0,
-                                            itemBuilder: _itemBuilder,
+                                          return Center(
+                                            child: ListView.separated(
+                                              shrinkWrap: true,
+                                              separatorBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                return const SizedBox(
+                                                    height: 15);
+                                              },
+                                              primary: false,
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount:
+                                                  retrievedBudgetList?.length ??
+                                                      0,
+                                              itemBuilder: _itemBuilder,
+                                            ),
                                           );
                                         } else {
                                           return Center(
@@ -445,7 +576,107 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                 ),
                               )
                             ]),
-                            const Text("asssss")
+                            Column(
+                              children: [
+                                SizedBox(
+                                  height: 5.0,
+                                ),
+                                Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        30.0, 0.0, 30.0, 0.0),
+                                    child: Align(
+                                      alignment: Alignment.topRight,
+                                      child: TextButton(
+                                        style: TextButton.styleFrom(
+                                          primary: const Color.fromARGB(
+                                              255, 1, 8, 14),
+                                          textStyle: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const FinancesPage()),
+                                          ).then((_) {
+                                            setState(() {
+                                              getAllData();
+                                            });
+                                          });
+                                        },
+                                        child: const Text('View All'),
+                                      ),
+                                    )),
+                                Container(
+                                  height: 350.0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        15.0, 0, 15.0, 0),
+                                    child: FutureBuilder(
+                                        future: transactionsCreditList,
+                                        builder: (BuildContext context,
+                                            AsyncSnapshot<List<Transactions>>
+                                                snapshot) {
+                                          if (snapshot.connectionState ==
+                                                  ConnectionState.done &&
+                                              retrievedTransactionsCreditList
+                                                      ?.isEmpty ==
+                                                  null) {
+                                            const Center(
+                                              child: Text(
+                                                'No Transactions Yet',
+                                                style: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 20.0),
+                                              ),
+                                            );
+                                          }
+                                          if (retrievedTransactionsCreditList
+                                                  ?.isEmpty ??
+                                              true) {
+                                            return const Center(
+                                              child: Text(
+                                                'No Transactions Yet',
+                                                style: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 20.0),
+                                              ),
+                                            );
+                                          }
+                                          if (snapshot.hasData &&
+                                              snapshot.data != null) {
+                                            return ListView.separated(
+                                              shrinkWrap: true,
+                                              separatorBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                return const SizedBox(
+                                                    height: 15);
+                                              },
+                                              primary: false,
+                                              scrollDirection: Axis.vertical,
+                                              itemCount:
+                                                  retrievedTransactionsCreditList
+                                                          ?.length ??
+                                                      0,
+                                              itemBuilder:
+                                                  _transactionItemBuilder,
+                                            );
+                                          } else {
+                                            return Center(
+                                              child: SpinKitSquareCircle(
+                                                color: Colors.blue[500],
+                                                size: 60.0,
+                                              ),
+                                            );
+                                          }
+                                        }),
+                                  ),
+                                ),
+                              ],
+                            )
                           ],
                         ),
                       )
@@ -479,12 +710,18 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     DateTime end = DateTime.parse('$endYear-$endMonth-$endDay');
 
     int daysFromToday = service.daysBetween(end, DateTime.now());
-    double amountSpent = 0.0;
+    double amountSpent = 0.0, remainingAmount = 0.0;
     if (daysFromToday.isNegative) {
       amountSpent = 0;
     } else {
-      double amountSpent =
+      amountSpent =
           double.parse(retrievedBudgetList![index].dailyLimit) * daysFromToday;
+    }
+
+    int isBudgetComplete = service.daysBetween(start, end);
+    print('is budget complete $isBudgetComplete');
+    if (isBudgetComplete.isNegative || isBudgetComplete == 0) {
+      deleteBudget(retrievedBudgetList![index].budgetName, 0, 'completed');
     }
 
     budgetAmt = NumberFormat.currency(locale: "en_NG", symbol: "₦")
@@ -497,6 +734,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         NumberFormat.currency(locale: "en_NG", symbol: "₦").format(amountSpent);
     percent =
         amountSpent / double.parse(retrievedBudgetList![index].budgetAmount);
+    remainingAmount =
+        (double.parse(retrievedBudgetList![index].budgetAmount)) - amountSpent;
 
     return SizedBox(
       width: 350,
@@ -546,10 +785,19 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                               fontWeight: FontWeight.w700)),
                                       onPressed: () {
                                         Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const AddBudget()));
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const AddBudget(),
+                                                    settings: RouteSettings(
+                                                        arguments:
+                                                            retrievedBudgetList![
+                                                                index])))
+                                            .then((_) {
+                                          setState(() {
+                                            getAllData();
+                                          });
+                                        });
                                       },
                                       child: Text('Edit Budget')),
                                   SizedBox(
@@ -569,11 +817,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                             fontWeight: FontWeight.w700),
                                       ),
                                       onPressed: () {
+                                        Navigator.pop(context);
                                         _deleteBudgetDialogBuilder(
                                             context,
                                             retrievedBudgetList![index]
                                                 .budgetName,
-                                            setModalState);
+                                            remainingAmount);
                                       },
                                       child: Text('Delete Budget')),
                                   SizedBox(
@@ -698,6 +947,105 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     );
   }
 
+  Widget _transactionItemBuilder(BuildContext context, int index) {
+    var transactionAmt = NumberFormat.currency(locale: "en_NG", symbol: "₦")
+        .format(double.parse(
+            retrievedTransactionsCreditList![index].transactionAmount));
+
+    String transactionName =
+        retrievedTransactionsCreditList![index].transactionTitle;
+    String imageText = '';
+
+    var names = transactionName.split(' ');
+    if (names.length >= 2) {
+      imageText = (names[0][0] + names[1][0]).toUpperCase();
+    } else {
+      imageText =
+          (names[0][0] + names[0][(transactionName.length - 1)]).toUpperCase();
+    }
+    String formattedTransacDate = DateFormat.yMMMd()
+        .format(retrievedTransactionsCreditList![index].transactionDate);
+
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        height: 65.0,
+        decoration: BoxDecoration(
+            border: Border.all(
+              color: Color.fromARGB(255, 223, 220, 220),
+            ),
+            borderRadius: BorderRadius.circular(15.0)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10.0, 0, 15.0, 0),
+          child: Row(
+            children: [
+              CircleAvatar(
+                minRadius: 25.0,
+                child: Text(imageText),
+              ),
+              SizedBox(
+                width: 20.0,
+              ),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          transactionName,
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 8.0,
+                        ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            retrievedTransactionsCreditList![index]
+                                .transactionDescription,
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[700],
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '+  $transactionAmt',
+                          style: TextStyle(
+                              color: Colors.green[900],
+                              fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 8.0,
+                        ),
+                        Text(
+                          formattedTransacDate,
+                          style: TextStyle(
+                              color: Colors.grey[700],
+                              fontWeight: FontWeight.w500),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> getDefaultValues() async {
     final User? user = auth.currentUser;
 
@@ -735,9 +1083,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     });
   }
 
-  Future<void> addAmount(double amount, StateSetter setModalState) async {
+  Future<void> addAmount(
+      double amount, String title, StateSetter setModalState) async {
     final User? user = auth.currentUser;
     String initialAmt = "";
+    double amountAdded = amount;
     setState(() {
       userEmail = user!.email;
     });
@@ -763,6 +1113,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               doc.reference.update({'amount': amount}).then((value) {
                 setModalState(() {
                   _amountController.clear();
+                  _amountDescriptionController.clear();
                 });
 
                 _dialogBuilder(context, 'SUCCESS', 'Amount Successfully Added');
@@ -771,6 +1122,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 _dialogBuilder(context, 'FAILURE', e.toString());
               });
             }));
+
+    await service.addTransaction(title, 'Money Added', false,
+        amountAdded.toString(), DateTime.now(), context);
 
     setState(() {
       _loading = false;
@@ -781,8 +1135,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     });
   }
 
-  Future<void> deleteBudget(String budgetName) async {
-    /* final User? user = auth.currentUser;
+  Future<void> deleteBudget(
+      String budgetName, double remainingAmt, String reason) async {
+    final User? user = auth.currentUser;
+    String currentUserAmount = totalAmt.replaceAll(',', '').replaceAll('₦', '');
 
     await FirebaseFirestore.instance
         .collection("expenses")
@@ -794,12 +1150,50 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         .then((value) => value.docs.forEach((doc) {
               doc.reference.delete().then((value) {});
             }));
-            */
+
+    double remainingUserAmount = remainingAmt + double.parse(currentUserAmount);
+
+    await FirebaseFirestore.instance
+        .collection("users")
+        .where('userId', isEqualTo: user.uid)
+        .limit(1)
+        .get()
+        .then((value) => value.docs.forEach((doc) {
+              doc.reference.update(
+                {
+                  'amount': remainingUserAmount.toString(),
+                },
+              ).onError((error, stackTrace) {
+                _dialogBuilder(context, 'FAILURE', error.toString());
+              }).then((value) {
+                if (remainingAmt > 0) {
+                  if (budgetName.length > 15) {
+                    budgetName = budgetName.substring(0, 7);
+                  }
+                  service.addTransaction(budgetName, 'Budget Deleted', false,
+                      remainingAmt.toString(), DateTime.now(), context);
+                }
+              });
+            }));
+
+    setState(() {
+      _loading = false;
+    });
+
+    getAllData();
+
+    if (reason == 'completed') {
+      _dialogBuilder(
+          context, 'SUCCESS', 'Budget $budgetName Completed Successfully');
+    } else {
+      _dialogBuilder(context, 'SUCCESS', 'Budget Deleted Successfully');
+    }
   }
 
   Future<void> _dialogBuilder(
       BuildContext context, String title, String description) {
     return showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           barrierColor:
@@ -808,91 +1202,102 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         });
   }
 
+  void errorDialog(errorMessage, isError) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isError ? Colors.red[600] : Colors.green[600],
+        elevation: 0,
+        content: Text(
+          errorMessage,
+          textAlign: TextAlign.center,
+        )));
+  }
+
   Future<void> _deleteBudgetDialogBuilder(
-      BuildContext context, String budgetName, setModalState) {
+      BuildContext context, String budgetName, double remainingAmount) {
     print(budgetName);
     return showDialog(
         context: context,
         builder: (BuildContext context) {
           barrierColor:
           Colors.black26;
-          return Dialog(
-            elevation: 0,
-            backgroundColor: Color(0xffffffff),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  height: 20.0,
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(50.0, 20, 50.0, 20),
-                  child: Center(
-                    child: const Text(
-                      'Are you sure you want to Delete this budget ? ',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 18.0, fontWeight: FontWeight.w800),
+          return StatefulBuilder(builder: (context, setDialogState) {
+            return Dialog(
+              elevation: 0,
+              backgroundColor: Color(0xffffffff),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(50.0, 20, 50.0, 20),
+                    child: Center(
+                      child: Text(
+                        'Are you sure you want to Delete this budget ? ',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 18.0, fontWeight: FontWeight.w800),
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 20.0,
-                ),
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 60.0,
-                    ),
-                    ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            elevation: 5.0,
-                            primary: Color.fromARGB(255, 183, 181, 181),
-                            minimumSize: const Size(100, 50),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0))),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text('No', style: TextStyle(fontSize: 17.0))),
-                    SizedBox(
-                      width: 20.0,
-                    ),
-                    ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            elevation: 5.0,
-                            primary: Colors.red[900],
-                            minimumSize: const Size(100, 50),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0))),
-                        onPressed: !_loading
-                            ? () {
-                                setState(() {
-                                  _loading = true;
-                                });
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 60.0,
+                      ),
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              elevation: 5.0,
+                              primary: Color.fromARGB(255, 183, 181, 181),
+                              minimumSize: const Size(100, 50),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0))),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text('No', style: TextStyle(fontSize: 17.0))),
+                      SizedBox(
+                        width: 20.0,
+                      ),
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              elevation: 5.0,
+                              primary: Colors.red[900],
+                              minimumSize: const Size(100, 50),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0))),
+                          onPressed: !_loading
+                              ? () {
+                                  Navigator.pop(context);
+                                  setState(() {
+                                    _loading = true;
+                                  });
 
-                                setModalState(() {
-                                  _loading = true;
-                                });
-
-                                deleteBudget(budgetName);
-                              }
-                            : null,
-                        child: Text(
-                          'Yes',
-                          style: TextStyle(fontSize: 17.0),
-                        )),
-                  ],
-                ),
-                SizedBox(
-                  height: 40.0,
-                )
-              ],
-            ),
-          );
+                                  deleteBudget(
+                                      budgetName, remainingAmount, 'delete');
+                                }
+                              : null,
+                          child: Text(
+                            'Yes',
+                            style: TextStyle(fontSize: 17.0),
+                          )),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 40.0,
+                  )
+                ],
+              ),
+            );
+          });
         });
   }
 }

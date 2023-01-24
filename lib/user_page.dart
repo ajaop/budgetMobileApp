@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -105,8 +106,25 @@ class _UserPageState extends State<UserPage> {
                                   children: [
                                     CircleAvatar(
                                         radius: 80.0,
-                                        backgroundImage: NetworkImage(
-                                            user?.photoURL.toString() ?? "")),
+                                        child: CachedNetworkImage(
+                                          imageUrl: user!.photoURL.toString(),
+                                          imageBuilder:
+                                              (context, imageProvider) =>
+                                                  Container(
+                                            width: 160.0,
+                                            height: 160.0,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              image: DecorationImage(
+                                                  image: imageProvider,
+                                                  fit: BoxFit.cover),
+                                            ),
+                                          ),
+                                          placeholder: (context, url) =>
+                                              CircularProgressIndicator(),
+                                          errorWidget: (context, url, error) =>
+                                              Icon(Icons.error),
+                                        )),
                                     Positioned(
                                         bottom: 0,
                                         right: -25,
@@ -376,8 +394,10 @@ class _UserPageState extends State<UserPage> {
                                                                       .validate()) {
                                                                     editAccountInfo(
                                                                         setModalState,
-                                                                        name1,
-                                                                        name2);
+                                                                        name1
+                                                                            .trim(),
+                                                                        name2
+                                                                            .trim());
                                                                   }
                                                                 }
                                                               : null,
@@ -634,7 +654,7 @@ class _UserPageState extends State<UserPage> {
                                                                             .toString();
                                                                     _changePassword(
                                                                         setModalState2,
-                                                                        pass);
+                                                                        pass.trim());
                                                                   }
                                                                 }
                                                               : null,

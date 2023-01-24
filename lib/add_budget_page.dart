@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:proj_1/Budgets.dart';
 import 'custom_alert_dialog.dart';
 import 'database_service.dart';
 
@@ -24,8 +25,11 @@ class _AddBudgetState extends State<AddBudget> {
   final _endDateController = TextEditingController();
   final _dailyLimitController = TextEditingController();
   final _weeklyLimitController = TextEditingController();
+  late final retrievedBudgetList;
+
   DatabaseService service = DatabaseService();
-  bool _loading = false, isExist = false;
+  bool _loading = false, isExist = false, isEditing = true;
+  String buttonName = 'Create Budget', initialUserAmt = "";
   FirebaseAuth auth = FirebaseAuth.instance;
   var startDate, endDate;
 
@@ -40,6 +44,51 @@ class _AddBudgetState extends State<AddBudget> {
         )));
   }
 
+  void getEditValuesIfExist() {
+    if (ModalRoute.of(context)!.settings.arguments == null) {
+      retrievedBudgetList = null;
+    } else {
+      retrievedBudgetList =
+          ModalRoute.of(context)!.settings.arguments as Budgets;
+    }
+
+    if (retrievedBudgetList.toString().isEmpty || retrievedBudgetList == null) {
+      print('empty');
+    } else {
+      var budgetAmt = NumberFormat.currency(locale: "en_NG", symbol: "₦")
+          .format(double.parse(retrievedBudgetList.budgetAmount));
+      var dailyLimitAmt = NumberFormat.currency(locale: "en_NG", symbol: "")
+          .format(double.parse(retrievedBudgetList.dailyLimit));
+      var weeklyLimitAmt = NumberFormat.currency(locale: "en_NG", symbol: "")
+          .format(double.parse(retrievedBudgetList.weeklyLimit));
+
+      String startDay = retrievedBudgetList.startDate.substring(0, 2);
+      String startMonth = retrievedBudgetList.startDate.substring(3, 5);
+      String startYear = retrievedBudgetList.startDate.substring(6, 10);
+      startDate = DateTime.parse('$startYear-$startMonth-$startDay');
+
+      String endDay = retrievedBudgetList.endDate.substring(0, 2);
+      String endMonth = retrievedBudgetList.endDate.substring(3, 5);
+      String endYear = retrievedBudgetList.endDate.substring(6, 10);
+      endDate = DateTime.parse('$endYear-$endMonth-$endDay');
+
+      _budgetTitleController.text = retrievedBudgetList.budgetName;
+      _budgetAmtController.selection =
+          TextSelection.collapsed(offset: _budgetAmtController.text.length);
+
+      _budgetAmtController.text = budgetAmt;
+      _startDateController.text = retrievedBudgetList.startDate;
+      _endDateController.text = retrievedBudgetList.endDate;
+      _dailyLimitController.text = dailyLimitAmt;
+      _weeklyLimitController.text = weeklyLimitAmt;
+
+      setState(() {
+        isEditing = false;
+        buttonName = 'Edit Budget';
+      });
+    }
+  }
+
   @override
   void dispose() {
     _budgetTitleController.dispose();
@@ -47,6 +96,14 @@ class _AddBudgetState extends State<AddBudget> {
     _dailyLimitController.dispose();
     _weeklyLimitController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      getEditValuesIfExist();
+    });
   }
 
   @override
@@ -64,8 +121,8 @@ class _AddBudgetState extends State<AddBudget> {
           appBar: AppBar(
             leading: const BackButton(color: Color.fromARGB(255, 4, 44, 76)),
             backgroundColor: Colors.white,
-            title: const Text(
-              'Add Budget',
+            title: Text(
+              buttonName,
               style: TextStyle(
                   letterSpacing: 0.6,
                   fontWeight: FontWeight.bold,
@@ -102,6 +159,7 @@ class _AddBudgetState extends State<AddBudget> {
                       ),
                       TextFormField(
                         controller: _budgetTitleController,
+                        enabled: isEditing,
                         maxLength: 25,
                         inputFormatters: <TextInputFormatter>[
                           FilteringTextInputFormatter.allow(
@@ -505,12 +563,17 @@ class _AddBudgetState extends State<AddBudget> {
                                         .toString()
                                         .replaceAll(',', '')
                                         .replaceAll('₦', '');
-                                    storeValueInDb(name, amount, startDate,
-                                        endDate, dailyAmt, weeklyAmt);
+                                    storeValueInDb(
+                                        name.trim(),
+                                        amount.trim(),
+                                        startDate,
+                                        endDate,
+                                        dailyAmt,
+                                        weeklyAmt);
                                   }
                                 }
                               : null,
-                          child: const Text('Create Budget'))
+                          child: Text(buttonName))
                     ],
                   ))
             ],
@@ -560,7 +623,7 @@ class _AddBudgetState extends State<AddBudget> {
 
   void storeValueInDb(budgetName, budgetAmt, startDate, endDate, dailyLimit,
       weeklyLimit) async {
-    print("BudgetName: $budgetName");
+    print("BudgetName: ${budgetName.toLowerCase()}");
     print("BudgetAmount: $budgetAmt");
     print("StartDate: $startDate");
     print("endDate: $endDate");
@@ -569,15 +632,35 @@ class _AddBudgetState extends State<AddBudget> {
 
     bool budgetNameExist = await doesNameAlreadyExist(budgetName);
     bool checkIfAmtIsGreater = await checkAmt(double.parse(budgetAmt));
+    double remainingAmount;
+
+    final User? user = auth.currentUser;
 
     if (!budgetNameExist) {
-      final User? user = auth.currentUser;
-
       if (checkIfAmtIsGreater) {
+        remainingAmount =
+            double.parse(initialUserAmt) - double.parse(budgetAmt);
+        print('remaining amount is $remainingAmount');
+
+        await FirebaseFirestore.instance
+            .collection("users")
+            .where('userId', isEqualTo: user!.uid)
+            .limit(1)
+            .get()
+            .then((value) => value.docs.forEach((doc) {
+                  doc.reference.update(
+                    {
+                      'amount': remainingAmount.toString(),
+                    },
+                  ).onError((error, stackTrace) {
+                    _dialogBuilder(context, 'FAILURE', error.toString());
+                  });
+                }));
+
         await FirebaseFirestore.instance
             .collection("expenses")
             .doc("budgets")
-            .collection(user!.email.toString())
+            .collection(user.email.toString())
             .add({
           "User": user.uid,
           "BudgetName": budgetName,
@@ -589,6 +672,11 @@ class _AddBudgetState extends State<AddBudget> {
           "WeeklyLimit": weeklyLimit
         }).then((DocumentReference doc) {
           print('Budget Created successfully');
+          if (budgetName.length > 15) {
+            budgetName = budgetName.substring(0, 7);
+          }
+          service.addTransaction(budgetName, 'Budget Created', true, budgetAmt,
+              DateTime.now(), context);
           _dialogBuilder(context, 'SUCCESS', 'Budget Created Successfully');
         }).onError((e, _) {
           print("Error writing document: $e");
@@ -598,12 +686,110 @@ class _AddBudgetState extends State<AddBudget> {
         _dialogBuilder(context, 'FAILURE', 'Insuffecient balance');
       }
     } else {
-      _dialogBuilder(context, 'FAILURE', 'budget name exists');
+      if (buttonName == 'Edit Budget') {
+        await editValueInDb(
+            budgetName, budgetAmt, startDate, endDate, dailyLimit, weeklyLimit);
+      } else {
+        _dialogBuilder(context, 'FAILURE', 'budget name exists');
+      }
     }
 
     setState(() {
       _loading = false;
     });
+  }
+
+  Future<void> editValueInDb(budgetName, budgetAmt, startDate, endDate,
+      dailyLimit, weeklyLimit) async {
+    double formerBudgetAmount = double.parse(retrievedBudgetList.budgetAmount),
+        remainingUserAmount = 0;
+    bool checkIfAmtIsGreater = true, isDebit = false;
+    final User? user = auth.currentUser;
+
+    if (formerBudgetAmount > double.parse(budgetAmt)) {
+      remainingUserAmount = double.parse(initialUserAmt) +
+          (formerBudgetAmount - double.parse(budgetAmt));
+      isDebit = false;
+    } else if (formerBudgetAmount < double.parse(budgetAmt)) {
+      checkIfAmtIsGreater =
+          await checkAmt((double.parse(budgetAmt) - formerBudgetAmount));
+      remainingUserAmount = double.parse(initialUserAmt) -
+          (double.parse(budgetAmt) - formerBudgetAmount);
+      isDebit = true;
+    }
+
+    if (checkIfAmtIsGreater) {
+      await FirebaseFirestore.instance
+          .collection("users")
+          .where('userId', isEqualTo: user!.uid)
+          .limit(1)
+          .get()
+          .then((value) => value.docs.forEach((doc) {
+                doc.reference.update(
+                  {
+                    'amount': remainingUserAmount.toString(),
+                  },
+                ).onError((error, stackTrace) {
+                  _dialogBuilder(context, 'FAILURE', error.toString());
+                });
+              }));
+
+      await FirebaseFirestore.instance
+          .collection("expenses")
+          .doc("budgets")
+          .collection(user.email.toString())
+          .where('lowerCaseBudgetName',
+              isEqualTo: budgetName.toString().toLowerCase())
+          .limit(1)
+          .get()
+          .then((value) => value.docs.forEach((doc) {
+                doc.reference.update(
+                  {
+                    'User': user.uid,
+                    'BudgetName': budgetName,
+                    'lowerCaseBudgetName': budgetName.toLowerCase(),
+                    'BudgetAmount': budgetAmt,
+                    'startDate': startDate,
+                    'endDate': endDate,
+                    'DailyLimit': dailyLimit,
+                    'WeeklyLimit': weeklyLimit
+                  },
+                ).then((value) {
+                  if (formerBudgetAmount > double.parse(budgetAmt)) {
+                    if (budgetName.length > 15) {
+                      budgetName = budgetName.substring(0, 7);
+                    }
+                    service.addTransaction(
+                        budgetName,
+                        'Budget Edited',
+                        isDebit,
+                        (formerBudgetAmount - double.parse(budgetAmt))
+                            .toString(),
+                        DateTime.now(),
+                        context);
+                  } else if (formerBudgetAmount < double.parse(budgetAmt)) {
+                    if (budgetName.length > 15) {
+                      budgetName = budgetName.substring(0, 7);
+                    }
+                    service.addTransaction(
+                        budgetName,
+                        'Budget Edited',
+                        isDebit,
+                        (double.parse(budgetAmt) - formerBudgetAmount)
+                            .toString(),
+                        DateTime.now(),
+                        context);
+                  }
+
+                  _dialogBuilder(
+                      context, 'SUCCESS', 'Budget Edited Successfully');
+                }).onError((error, stackTrace) {
+                  _dialogBuilder(context, 'FAILURE', error.toString());
+                });
+              }));
+    } else {
+      _dialogBuilder(context, 'FAILURE', 'Insuffecient balance');
+    }
   }
 
   Future<bool> doesNameAlreadyExist(String name) async {
@@ -632,7 +818,6 @@ class _AddBudgetState extends State<AddBudget> {
 
   Future<bool> checkAmt(double budgetAmt) async {
     final User? user = auth.currentUser;
-    String initialAmt = "";
 
     await FirebaseFirestore.instance
         .collection("users")
@@ -641,10 +826,10 @@ class _AddBudgetState extends State<AddBudget> {
         .get()
         .then((value) => value.docs.forEach((doc) {
               final data = doc.data()['amount'].toString();
-              initialAmt = data;
+              initialUserAmt = data;
             }));
 
-    if (budgetAmt > double.parse(initialAmt)) {
+    if (budgetAmt > double.parse(initialUserAmt)) {
       return false;
     } else {
       return true;
@@ -654,6 +839,7 @@ class _AddBudgetState extends State<AddBudget> {
   Future<void> _dialogBuilder(
       BuildContext context, String title, String description) {
     return showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           barrierColor:
