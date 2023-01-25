@@ -699,15 +699,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   }
 
   Widget _itemBuilder(BuildContext context, int index) {
-    String startDay = retrievedBudgetList![index].startDate.substring(0, 2);
-    String startMonth = retrievedBudgetList![index].startDate.substring(3, 5);
-    String startYear = retrievedBudgetList![index].startDate.substring(6, 10);
-    DateTime start = DateTime.parse('$startYear-$startMonth-$startDay');
+    DateTime start = DateTime.parse(retrievedBudgetList![index].startDate);
 
-    String endDay = retrievedBudgetList![index].endDate.substring(0, 2);
-    String endMonth = retrievedBudgetList![index].endDate.substring(3, 5);
-    String endYear = retrievedBudgetList![index].endDate.substring(6, 10);
-    DateTime end = DateTime.parse('$endYear-$endMonth-$endDay');
+    DateTime end = DateTime.parse(retrievedBudgetList![index].endDate);
 
     int daysFromToday = service.daysBetween(end, DateTime.now());
     double amountSpent = 0.0, remainingAmount = 0.0;
@@ -732,8 +726,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         .format(double.parse(retrievedBudgetList![index].weeklyLimit));
     amtSpent =
         NumberFormat.currency(locale: "en_NG", symbol: "₦").format(amountSpent);
+
     percent =
         amountSpent / double.parse(retrievedBudgetList![index].budgetAmount);
+    if (percent >= 2.0) {
+      percent = 1.0;
+    }
     remainingAmount =
         (double.parse(retrievedBudgetList![index].budgetAmount)) - amountSpent;
 
@@ -1117,7 +1115,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 });
 
                 _dialogBuilder(context, 'SUCCESS', 'Amount Successfully Added');
-                getDefaultValues();
+                getAllData();
               }, onError: (e) {
                 _dialogBuilder(context, 'FAILURE', e.toString());
               });

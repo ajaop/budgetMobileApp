@@ -31,7 +31,7 @@ class _AddBudgetState extends State<AddBudget> {
   bool _loading = false, isExist = false, isEditing = true;
   String buttonName = 'Create Budget', initialUserAmt = "";
   FirebaseAuth auth = FirebaseAuth.instance;
-  var startDate, endDate;
+  var startDate, minimumEndDate, endDate;
 
   void error(errorMessage) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -62,23 +62,24 @@ class _AddBudgetState extends State<AddBudget> {
       var weeklyLimitAmt = NumberFormat.currency(locale: "en_NG", symbol: "")
           .format(double.parse(retrievedBudgetList.weeklyLimit));
 
-      String startDay = retrievedBudgetList.startDate.substring(0, 2);
-      String startMonth = retrievedBudgetList.startDate.substring(3, 5);
-      String startYear = retrievedBudgetList.startDate.substring(6, 10);
-      startDate = DateTime.parse('$startYear-$startMonth-$startDay');
+      startDate = DateTime.parse(retrievedBudgetList.startDate);
 
-      String endDay = retrievedBudgetList.endDate.substring(0, 2);
-      String endMonth = retrievedBudgetList.endDate.substring(3, 5);
-      String endYear = retrievedBudgetList.endDate.substring(6, 10);
-      endDate = DateTime.parse('$endYear-$endMonth-$endDay');
+      endDate = DateTime.parse(retrievedBudgetList.endDate);
+      minimumEndDate = startDate.add(Duration(days: 1));
+
+      var inputFormat = DateFormat('dd/MM/yyyy');
+
+      String startDateText = inputFormat.format(startDate);
+
+      String endDateText = inputFormat.format(endDate);
 
       _budgetTitleController.text = retrievedBudgetList.budgetName;
       _budgetAmtController.selection =
           TextSelection.collapsed(offset: _budgetAmtController.text.length);
 
       _budgetAmtController.text = budgetAmt;
-      _startDateController.text = retrievedBudgetList.startDate;
-      _endDateController.text = retrievedBudgetList.endDate;
+      _startDateController.text = startDateText;
+      _endDateController.text = endDateText;
       _dailyLimitController.text = dailyLimitAmt;
       _weeklyLimitController.text = weeklyLimitAmt;
 
@@ -286,6 +287,8 @@ class _AddBudgetState extends State<AddBudget> {
                                                       DateFormat('dd/MM/yyyy');
 
                                                   startDate = newdate;
+                                                  minimumEndDate = newdate
+                                                      .add(Duration(days: 1));
                                                   String startDateText =
                                                       inputFormat
                                                           .format(newdate);
@@ -384,8 +387,9 @@ class _AddBudgetState extends State<AddBudget> {
                                                         .height /
                                                     3,
                                                 child: CupertinoDatePicker(
-                                                  minimumDate: startDate,
-                                                  initialDateTime: startDate,
+                                                  minimumDate: minimumEndDate,
+                                                  initialDateTime:
+                                                      minimumEndDate,
                                                   onDateTimeChanged:
                                                       (DateTime newdate) {
                                                     var inputFormat =
@@ -550,10 +554,7 @@ class _AddBudgetState extends State<AddBudget> {
                                         .toString()
                                         .replaceAll(',', '')
                                         .replaceAll('₦', '');
-                                    String startDate =
-                                        _startDateController.text.toString();
-                                    String endDate =
-                                        _endDateController.text.toString();
+
                                     String dailyAmt = _dailyLimitController.text
                                         .toString()
                                         .replaceAll(',', '')
@@ -566,8 +567,8 @@ class _AddBudgetState extends State<AddBudget> {
                                     storeValueInDb(
                                         name.trim(),
                                         amount.trim(),
-                                        startDate,
-                                        endDate,
+                                        startDate.toString(),
+                                        endDate.toString(),
                                         dailyAmt,
                                         weeklyAmt);
                                   }

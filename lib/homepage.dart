@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:proj_1/dashboard.dart';
 import 'package:proj_1/finances_page.dart';
 import 'package:proj_1/user_page.dart';
-
 import 'Budgets.dart';
 import 'database_service.dart';
 
@@ -29,7 +28,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print('current route ${ModalRoute.of(context)!.settings.name}');
     Widget widget = Container();
     switch (_index) {
       case 0:
@@ -37,7 +35,7 @@ class _HomePageState extends State<HomePage> {
         break;
 
       case 1:
-        const FinancesPage();
+        widget = const FinancesPage();
         break;
 
       case 2:
@@ -54,8 +52,8 @@ class _HomePageState extends State<HomePage> {
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_bag),
-              label: 'Finances',
+              icon: Icon(Icons.credit_card),
+              label: 'Transactions',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),

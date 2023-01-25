@@ -40,6 +40,18 @@ class DatabaseService {
         .toList();
   }
 
+  Future<List<Transactions>> retrieveAllTransactions() async {
+    QuerySnapshot<Map<String, dynamic>> snapshot = await _db
+        .collection("expenses")
+        .doc("transactions")
+        .collection(user!.email.toString())
+        .get();
+
+    return snapshot.docs
+        .map((docSnapshot) => Transactions.fromDocumentSnapshot(docSnapshot))
+        .toList();
+  }
+
   Future<void> addTransaction(String title, String description, bool isDebit,
       String amount, DateTime date, context) async {
     String trasactionType = '';
@@ -74,9 +86,15 @@ class DatabaseService {
   int daysBetween(DateTime from, DateTime to) {
     from = DateTime(from.year, from.month, from.day);
     to = DateTime(to.year, to.month, to.day);
-    int noOfDays = (to.difference(from).inHours / 24).round() + 1;
+    int noOfDays = (to.difference(from).inHours / 24).round();
     print("no Of Days: ${noOfDays}");
     return noOfDays;
+  }
+
+  bool isSameDate(DateTime first, DateTime other) {
+    return first.year == other.year &&
+        first.month == other.month &&
+        first.day == other.day;
   }
 
   void errorDialog(errorMessage, isError, context) {
