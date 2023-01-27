@@ -1,10 +1,9 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
-import "package:collection/collection.dart";
-
 import 'Transactions.dart';
 import 'database_service.dart';
 
@@ -24,8 +23,8 @@ class _FinancesPageState extends State<FinancesPage> {
   DatabaseService service = DatabaseService();
   Future<List<Transactions>>? transactionsCreditList;
   List<Transactions>? retrievedTransactionsCreditList;
-
   bool isFilterDate = false, isFilterName = false, _loading = false;
+  final Color barBackgroundColor = const Color(0xff72d8bf);
 
   @override
   void initState() {
@@ -101,6 +100,13 @@ class _FinancesPageState extends State<FinancesPage> {
                 padding: const EdgeInsets.all(15.0),
                 child: Column(
                   children: [
+                    Container(
+                      width: double.infinity,
+                      height: 300.0,
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
                     Visibility(
                       visible: isFilterName,
                       child: Container(
@@ -334,7 +340,7 @@ class _FinancesPageState extends State<FinancesPage> {
                                 retrievedTransactionsCreditList?.isEmpty ==
                                     null) {
                               return Container(
-                                child: Center(
+                                child: const Center(
                                   child: Text(
                                     'No Transactions Yet',
                                     style: TextStyle(
@@ -346,7 +352,7 @@ class _FinancesPageState extends State<FinancesPage> {
                             if (retrievedTransactionsCreditList?.isEmpty ??
                                 true) {
                               return Container(
-                                child: Center(
+                                child: const Center(
                                   child: Text(
                                     'No Transactions Yet',
                                     style: TextStyle(
@@ -579,6 +585,9 @@ class _FinancesPageState extends State<FinancesPage> {
     String formattedTransacDate = DateFormat.yMMMd()
         .format(retrievedTransactionsCreditList![index].transactionDate);
 
+    String formattedTransacTime = DateFormat.Hm()
+        .format(retrievedTransactionsCreditList![index].transactionDate);
+
     var amtColor;
     String amtSign;
     bool isSameDate = true;
@@ -686,7 +695,6 @@ class _FinancesPageState extends State<FinancesPage> {
                           ],
                         ),
                         Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
@@ -698,7 +706,7 @@ class _FinancesPageState extends State<FinancesPage> {
                               height: 8.0,
                             ),
                             Text(
-                              formattedTransacDate,
+                              formattedTransacTime,
                               style: TextStyle(
                                   color: Colors.grey[700],
                                   fontWeight: FontWeight.w500),

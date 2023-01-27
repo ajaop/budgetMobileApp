@@ -25,6 +25,7 @@ class ProjApp extends StatelessWidget {
     return MaterialApp(initialRoute: '/', routes: {
       '/': (context) => const SignIn(),
       '/homepage': (context) => const HomePage(),
+      '/userpage': (context) => const UserPage(),
       '/alertdialog': (context) => AlertDialog(),
     });
   }

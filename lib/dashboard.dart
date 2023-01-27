@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:proj_1/Transactions.dart';
 import 'package:proj_1/finances_page.dart';
 import 'package:proj_1/signin.dart';
+import 'package:proj_1/user_page.dart';
 
 import 'add_budget_page.dart';
 import 'custom_alert_dialog.dart';
@@ -76,6 +77,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         return b.transactionDate.compareTo(a.transactionDate);
       },
     );
+
+    retrievedBudgetList!.sort(
+      (a, b) {
+        return b.presentDate.compareTo(DateTime.parse(a.startDate));
+      },
+    );
   }
 
   @override
@@ -119,36 +126,48 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                           Padding(
                               padding: EdgeInsets.fromLTRB(25.0, 0, 8.0, 0),
                               child: _imageLoaded
-                                  ? CircleAvatar(
-                                      radius: 40.0,
-                                      foregroundColor:
-                                          Color.fromARGB(255, 223, 220, 220),
-                                      child: CachedNetworkImage(
-                                        imageUrl: user!.photoURL.toString(),
-                                        imageBuilder:
-                                            (context, imageProvider) =>
-                                                Container(
-                                          width: 80.0,
-                                          height: 80.0,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            image: DecorationImage(
-                                                image: imageProvider,
-                                                fit: BoxFit.cover),
+                                  ? InkWell(
+                                      onTap: () {
+                                        Navigator.pushNamed(
+                                            context, '/userpage');
+                                      },
+                                      child: CircleAvatar(
+                                        radius: 40.0,
+                                        foregroundColor:
+                                            Color.fromARGB(255, 223, 220, 220),
+                                        child: CachedNetworkImage(
+                                          imageUrl: user!.photoURL.toString(),
+                                          imageBuilder:
+                                              (context, imageProvider) =>
+                                                  Container(
+                                            width: 80.0,
+                                            height: 80.0,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              image: DecorationImage(
+                                                  image: imageProvider,
+                                                  fit: BoxFit.cover),
+                                            ),
                                           ),
+                                          placeholder: (context, url) =>
+                                              CircularProgressIndicator(),
+                                          errorWidget: (context, url, error) =>
+                                              Icon(Icons.error),
                                         ),
-                                        placeholder: (context, url) =>
-                                            CircularProgressIndicator(),
-                                        errorWidget: (context, url, error) =>
-                                            Icon(Icons.error),
                                       ),
                                     )
-                                  : const CircleAvatar(
-                                      radius: 40.0,
-                                      foregroundColor:
-                                          Color.fromARGB(255, 223, 220, 220),
-                                      backgroundImage:
-                                          AssetImage('images/profile.png'),
+                                  : InkWell(
+                                      onTap: () {
+                                        Navigator.pushNamed(
+                                            context, '/userpage');
+                                      },
+                                      child: const CircleAvatar(
+                                        radius: 40.0,
+                                        foregroundColor:
+                                            Color.fromARGB(255, 223, 220, 220),
+                                        backgroundImage:
+                                            AssetImage('images/profile.png'),
+                                      ),
                                     )),
                           const SizedBox(
                             width: 50.0,
@@ -964,82 +983,133 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     String formattedTransacDate = DateFormat.yMMMd()
         .format(retrievedTransactionsCreditList![index].transactionDate);
 
+    String formattedTransacTime = DateFormat.Hm()
+        .format(retrievedTransactionsCreditList![index].transactionDate);
+
+    bool isSameDate = true;
+    final DateTime presentDate =
+        retrievedTransactionsCreditList![index].transactionDate;
+
+    if (service.daysBetween(
+            retrievedTransactionsCreditList![index].transactionDate,
+            DateTime.now()) ==
+        0) {
+      formattedTransacDate = 'Today';
+    } else if (service.daysBetween(
+            retrievedTransactionsCreditList![index].transactionDate,
+            DateTime.now()) ==
+        1) {
+      formattedTransacDate = 'Yesterday';
+    }
+
+    if (index == 0) {
+      isSameDate = false;
+    } else {
+      final DateTime prevDate =
+          retrievedTransactionsCreditList![index - 1].transactionDate;
+      final DateTime presentDate =
+          retrievedTransactionsCreditList![index].transactionDate;
+      isSameDate = service.isSameDate(presentDate, prevDate);
+    }
+
+    if (index == 0 || !(isSameDate)) {
+      isSameDate = false;
+    }
+
     return InkWell(
       onTap: () {},
-      child: Container(
-        height: 65.0,
-        decoration: BoxDecoration(
-            border: Border.all(
-              color: Color.fromARGB(255, 223, 220, 220),
-            ),
-            borderRadius: BorderRadius.circular(15.0)),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(10.0, 0, 15.0, 0),
-          child: Row(
-            children: [
-              CircleAvatar(
-                minRadius: 25.0,
-                child: Text(imageText),
-              ),
-              SizedBox(
-                width: 20.0,
-              ),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
+      child: Column(
+        children: [
+          Visibility(
+              visible: !isSameDate,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 5.0),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    formattedTransacDate,
+                    style: TextStyle(
+                        color: Colors.grey[800],
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16.0),
+                  ),
+                ),
+              )),
+          Container(
+            height: 65.0,
+            decoration: BoxDecoration(
+                border: Border.all(
+                  color: Color.fromARGB(255, 223, 220, 220),
+                ),
+                borderRadius: BorderRadius.circular(15.0)),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10.0, 0, 15.0, 0),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    minRadius: 25.0,
+                    child: Text(imageText),
+                  ),
+                  SizedBox(
+                    width: 20.0,
+                  ),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          transactionName,
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              transactionName,
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 8.0,
+                            ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                retrievedTransactionsCreditList![index]
+                                    .transactionDescription,
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(
-                          height: 8.0,
-                        ),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            retrievedTransactionsCreditList![index]
-                                .transactionDescription,
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[700],
-                                fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '+  $transactionAmt',
-                          style: TextStyle(
-                              color: Colors.green[900],
-                              fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 8.0,
-                        ),
-                        Text(
-                          formattedTransacDate,
-                          style: TextStyle(
-                              color: Colors.grey[700],
-                              fontWeight: FontWeight.w500),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '+  $transactionAmt',
+                              style: TextStyle(
+                                  color: Colors.green[900],
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 8.0,
+                            ),
+                            Text(
+                              formattedTransacTime,
+                              style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.w500),
+                            )
+                          ],
                         )
                       ],
-                    )
-                  ],
-                ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

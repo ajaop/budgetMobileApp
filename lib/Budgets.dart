@@ -8,15 +8,16 @@ class Budgets {
   final String weeklyLimit;
   final String startDate;
   final String endDate;
+  final DateTime presentDate;
 
-  Budgets({
-    required this.budgetName,
-    required this.budgetAmount,
-    required this.dailyLimit,
-    required this.weeklyLimit,
-    required this.startDate,
-    required this.endDate,
-  });
+  Budgets(
+      {required this.budgetName,
+      required this.budgetAmount,
+      required this.dailyLimit,
+      required this.weeklyLimit,
+      required this.startDate,
+      required this.endDate,
+      required this.presentDate});
 
   Map<String, dynamic> toMap() {
     return {
@@ -35,5 +36,6 @@ class Budgets {
         dailyLimit = doc.data()!["DailyLimit"],
         weeklyLimit = doc.data()!["WeeklyLimit"],
         startDate = doc.data()!["startDate"],
-        endDate = doc.data()!["endDate"];
+        endDate = doc.data()!["endDate"],
+        presentDate = DateTime.now();
 }

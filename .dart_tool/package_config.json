@@ -104,6 +104,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "equatable",
+      "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/equatable-2.0.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "fake_async",
       "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/fake_async-1.2.0",
       "packageUri": "lib/",
@@ -174,6 +180,12 @@
       "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_storage_web-3.3.9",
       "packageUri": "lib/",
       "languageVersion": "2.16"
+    },
+    {
+      "name": "fl_chart",
+      "rootUri": "file:///Users/mac/Desktop/flutter-development/flutter/.pub-cache/hosted/pub.dartlang.org/fl_chart-0.50.6",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "flutter",
@@ -518,7 +530,7 @@
       "languageVersion": "2.16"
     }
   ],
-  "generated": "2023-01-23T14:35:53.309414Z",
+  "generated": "2023-01-27T10:26:05.809249Z",
   "generator": "pub",
   "generatorVersion": "2.16.0"
 }
