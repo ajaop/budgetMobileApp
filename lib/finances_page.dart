@@ -1,4 +1,3 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,13 +17,14 @@ class _FinancesPageState extends State<FinancesPage> {
   ScrollController? _controller;
   final _startDateController = TextEditingController();
   final _endDateController = TextEditingController();
+  final _transactionTypeController = TextEditingController();
   final _searchTextController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   var startDate, minimumEndDate, endDate;
   DatabaseService service = DatabaseService();
-  Future<List<Transactions>>? transactionsCreditList;
-  List<Transactions>? retrievedTransactionsCreditList;
-  bool isFilterDate = false, isFilterName = false, _loading = false;
-  final Color barBackgroundColor = const Color(0xff72d8bf);
+  Future<List<Transactions>>? transactionsList;
+  List<Transactions>? retrievedtransactionsList;
+  bool isFilterDate = false, isFilterName = true, _loading = false;
 
   @override
   void initState() {
@@ -40,10 +40,10 @@ class _FinancesPageState extends State<FinancesPage> {
     setState(() {
       _loading = true;
     });
-    transactionsCreditList = service.retrieveAllTransactions();
-    retrievedTransactionsCreditList = await service.retrieveAllTransactions();
+    transactionsList = service.retrieveAllTransactions();
+    retrievedtransactionsList = await service.retrieveAllTransactions();
 
-    retrievedTransactionsCreditList!.sort(
+    retrievedtransactionsList!.sort(
       (a, b) {
         return b.transactionDate.compareTo(a.transactionDate);
       },
@@ -58,6 +58,7 @@ class _FinancesPageState extends State<FinancesPage> {
     _startDateController.dispose();
     _endDateController.dispose();
     _searchTextController.dispose();
+    _transactionTypeController.dispose();
     super.dispose();
   }
 
@@ -100,13 +101,6 @@ class _FinancesPageState extends State<FinancesPage> {
                 padding: const EdgeInsets.all(15.0),
                 child: Column(
                   children: [
-                    Container(
-                      width: double.infinity,
-                      height: 300.0,
-                    ),
-                    SizedBox(
-                      height: 10.0,
-                    ),
                     Visibility(
                       visible: isFilterName,
                       child: Container(
@@ -125,9 +119,12 @@ class _FinancesPageState extends State<FinancesPage> {
                                 child: Align(
                                   alignment: Alignment.center,
                                   child: TextFormField(
+                                      controller: _searchTextController,
                                       inputFormatters: [
                                         LengthLimitingTextInputFormatter(20),
                                       ],
+                                      onChanged: (value) =>
+                                          filterTransaction(value),
                                       decoration: const InputDecoration(
                                         hintText: 'Foods & Drinks',
                                         border: InputBorder.none,
@@ -142,7 +139,10 @@ class _FinancesPageState extends State<FinancesPage> {
                             Align(
                               alignment: Alignment.bottomLeft,
                               child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     primary: Color.fromARGB(255, 35, 63, 105),
                                     minimumSize:
@@ -195,8 +195,6 @@ class _FinancesPageState extends State<FinancesPage> {
                                                     .height /
                                                 3,
                                             child: CupertinoDatePicker(
-                                              minimumDate: DateTime.now(),
-                                              initialDateTime: DateTime.now(),
                                               onDateTimeChanged:
                                                   (DateTime newdate) {
                                                 var inputFormat =
@@ -223,14 +221,6 @@ class _FinancesPageState extends State<FinancesPage> {
                                             ));
                                       });
                                 },
-                                autovalidateMode:
-                                    AutovalidateMode.onUserInteraction,
-                                onFieldSubmitted: (value) {},
-                                validator: (value) {
-                                  if (value!.trim().isEmpty) {
-                                    return 'Start date is required';
-                                  }
-                                },
                               )
                             ],
                           )),
@@ -253,7 +243,7 @@ class _FinancesPageState extends State<FinancesPage> {
                                 height: 5.0,
                               ),
                               TextFormField(
-                                controller: _startDateController,
+                                controller: _endDateController,
                                 decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
                                   hintText: 'DD/MM/YYYY',
@@ -299,14 +289,6 @@ class _FinancesPageState extends State<FinancesPage> {
                                             ));
                                       });
                                 },
-                                autovalidateMode:
-                                    AutovalidateMode.onUserInteraction,
-                                onFieldSubmitted: (value) {},
-                                validator: (value) {
-                                  if (value!.trim().isEmpty) {
-                                    return 'End date is required';
-                                  }
-                                },
                               )
                             ],
                           )),
@@ -316,7 +298,9 @@ class _FinancesPageState extends State<FinancesPage> {
                           Padding(
                             padding: const EdgeInsets.fromLTRB(0, 25.0, 0, 0),
                             child: ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  filterTransactionyDate(startDate, endDate);
+                                },
                                 style: ElevatedButton.styleFrom(
                                   primary:
                                       const Color.fromARGB(255, 35, 63, 105),
@@ -330,15 +314,17 @@ class _FinancesPageState extends State<FinancesPage> {
                         ],
                       ),
                     ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
                     Expanded(
                       child: FutureBuilder(
-                          future: transactionsCreditList,
+                          future: transactionsList,
                           builder: (BuildContext context,
                               AsyncSnapshot<List<Transactions>> snapshot) {
                             if (snapshot.connectionState ==
                                     ConnectionState.done &&
-                                retrievedTransactionsCreditList?.isEmpty ==
-                                    null) {
+                                retrievedtransactionsList?.isEmpty == null) {
                               return Container(
                                 child: const Center(
                                   child: Text(
@@ -349,8 +335,7 @@ class _FinancesPageState extends State<FinancesPage> {
                                 ),
                               );
                             }
-                            if (retrievedTransactionsCreditList?.isEmpty ??
-                                true) {
+                            if (retrievedtransactionsList?.isEmpty ?? true) {
                               return Container(
                                 child: const Center(
                                   child: Text(
@@ -371,8 +356,7 @@ class _FinancesPageState extends State<FinancesPage> {
                                 primary: false,
                                 scrollDirection: Axis.vertical,
                                 itemCount:
-                                    retrievedTransactionsCreditList?.length ??
-                                        0,
+                                    retrievedtransactionsList?.length ?? 0,
                                 itemBuilder: _transactionItemBuilder,
                               );
                             } else {
@@ -446,9 +430,10 @@ class _FinancesPageState extends State<FinancesPage> {
           child: TextButton(
               onPressed: () {
                 setState(() {
-                  isFilterName = true;
                   isFilterDate = false;
+                  isFilterName = true;
                 });
+
                 Navigator.pop(context);
               },
               child: Row(
@@ -501,6 +486,21 @@ class _FinancesPageState extends State<FinancesPage> {
                 ],
               )),
         ),
+        PopupMenuItem(
+          child: TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                ComplexTransacModal();
+              },
+              child: Row(
+                children: const [
+                  Text(
+                    "Complex Search",
+                    style: TextStyle(color: Colors.black, fontSize: 15),
+                  ),
+                ],
+              )),
+        ),
       ],
       elevation: 8.0,
     );
@@ -521,6 +521,7 @@ class _FinancesPageState extends State<FinancesPage> {
                   isFilterDate = false;
                 });
                 Navigator.pop(context);
+                getCredit();
               },
               child: Row(
                 children: const [
@@ -546,6 +547,7 @@ class _FinancesPageState extends State<FinancesPage> {
                   isFilterDate = false;
                 });
                 Navigator.pop(context);
+                getDebit();
               },
               child: Row(
                 children: const [
@@ -566,13 +568,75 @@ class _FinancesPageState extends State<FinancesPage> {
     );
   }
 
+  void _showtransactionType2() async {
+    await showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        500,
+        800,
+        10,
+        10,
+      ),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(15.0))),
+      items: [
+        PopupMenuItem(
+          child: TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() {
+                  _transactionTypeController.text = 'Credit';
+                });
+              },
+              child: Row(
+                children: const [
+                  Icon(
+                    Icons.credit_score_outlined,
+                    color: Color.fromARGB(255, 27, 94, 32),
+                  ),
+                  SizedBox(
+                    width: 8.0,
+                  ),
+                  Text(
+                    "Credit",
+                    style: TextStyle(color: Colors.black, fontSize: 15),
+                  ),
+                ],
+              )),
+        ),
+        PopupMenuItem(
+          child: TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() {
+                  _transactionTypeController.text = 'Debit';
+                });
+              },
+              child: Row(
+                children: const [
+                  Icon(Icons.credit_score_outlined,
+                      color: Color.fromARGB(255, 183, 28, 28)),
+                  SizedBox(
+                    width: 8.0,
+                  ),
+                  Text(
+                    "Debit",
+                    style: TextStyle(color: Colors.black, fontSize: 15),
+                  ),
+                ],
+              )),
+        ),
+      ],
+      elevation: 8.0,
+    );
+  }
+
   Widget _transactionItemBuilder(BuildContext context, int index) {
     var transactionAmt = NumberFormat.currency(locale: "en_NG", symbol: "₦")
-        .format(double.parse(
-            retrievedTransactionsCreditList![index].transactionAmount));
+        .format(
+            double.parse(retrievedtransactionsList![index].transactionAmount));
 
-    String transactionName =
-        retrievedTransactionsCreditList![index].transactionTitle;
+    String transactionName = retrievedtransactionsList![index].transactionTitle;
     String imageText = '';
 
     var names = transactionName.split(' ');
@@ -583,18 +647,18 @@ class _FinancesPageState extends State<FinancesPage> {
           (names[0][0] + names[0][(transactionName.length - 1)]).toUpperCase();
     }
     String formattedTransacDate = DateFormat.yMMMd()
-        .format(retrievedTransactionsCreditList![index].transactionDate);
+        .format(retrievedtransactionsList![index].transactionDate);
 
     String formattedTransacTime = DateFormat.Hm()
-        .format(retrievedTransactionsCreditList![index].transactionDate);
+        .format(retrievedtransactionsList![index].transactionDate);
 
     var amtColor;
     String amtSign;
     bool isSameDate = true;
     final DateTime presentDate =
-        retrievedTransactionsCreditList![index].transactionDate;
+        retrievedtransactionsList![index].transactionDate;
 
-    if (retrievedTransactionsCreditList![index].transactionType == 'Credit') {
+    if (retrievedtransactionsList![index].transactionType == 'Credit') {
       amtColor = Colors.green[900];
       amtSign = '+';
     } else {
@@ -602,13 +666,12 @@ class _FinancesPageState extends State<FinancesPage> {
       amtSign = '-';
     }
 
-    if (service.daysBetween(
-            retrievedTransactionsCreditList![index].transactionDate,
+    if (service.daysBetween(retrievedtransactionsList![index].transactionDate,
             DateTime.now()) ==
         0) {
       formattedTransacDate = 'Today';
     } else if (service.daysBetween(
-            retrievedTransactionsCreditList![index].transactionDate,
+            retrievedtransactionsList![index].transactionDate,
             DateTime.now()) ==
         1) {
       formattedTransacDate = 'Yesterday';
@@ -618,9 +681,9 @@ class _FinancesPageState extends State<FinancesPage> {
       isSameDate = false;
     } else {
       final DateTime prevDate =
-          retrievedTransactionsCreditList![index - 1].transactionDate;
+          retrievedtransactionsList![index - 1].transactionDate;
       final DateTime presentDate =
-          retrievedTransactionsCreditList![index].transactionDate;
+          retrievedtransactionsList![index].transactionDate;
       isSameDate = service.isSameDate(presentDate, prevDate);
     }
 
@@ -684,7 +747,7 @@ class _FinancesPageState extends State<FinancesPage> {
                             Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                retrievedTransactionsCreditList![index]
+                                retrievedtransactionsList![index]
                                     .transactionDescription,
                                 style: TextStyle(
                                     fontSize: 16,
@@ -723,5 +786,366 @@ class _FinancesPageState extends State<FinancesPage> {
         ],
       ),
     );
+  }
+
+  Future<void> filterTransaction(String enteredKeyword) async {
+    retrievedtransactionsList = await service.retrieveAllTransactions();
+    List<Transactions> results = [];
+    if (enteredKeyword.isEmpty) {
+      results = await service.retrieveAllTransactions();
+    } else {
+      results = retrievedtransactionsList!
+          .where((transaction) => transaction.transactionTitle
+              .toLowerCase()
+              .contains(enteredKeyword.toLowerCase()))
+          .toList();
+      results.sort(
+        (a, b) {
+          return b.transactionDate.compareTo(a.transactionDate);
+        },
+      );
+    }
+
+    // Refresh the UI
+    setState(() {
+      retrievedtransactionsList = results;
+    });
+  }
+
+  Future<void> getCredit() async {
+    Future<List<Transactions>>? transactionsCreditList;
+    List<Transactions>? retrievedtransactionsCreditList;
+
+    setState(() {
+      _loading = true;
+    });
+
+    transactionsCreditList = service.retrieveTransactionsCredit();
+    retrievedtransactionsCreditList =
+        await service.retrieveTransactionsCredit();
+
+    retrievedtransactionsCreditList.sort(
+      (a, b) {
+        return b.transactionDate.compareTo(a.transactionDate);
+      },
+    );
+
+    setState(() {
+      transactionsList = transactionsCreditList;
+      retrievedtransactionsList = retrievedtransactionsCreditList;
+
+      _loading = false;
+    });
+  }
+
+  Future<void> getDebit() async {
+    Future<List<Transactions>>? transactionsDebitList;
+    List<Transactions>? retrievedtransactionsDebitList;
+
+    setState(() {
+      _loading = true;
+    });
+
+    transactionsDebitList = service.retrieveTransactionsDebit();
+    retrievedtransactionsDebitList = await service.retrieveTransactionsDebit();
+
+    retrievedtransactionsDebitList.sort(
+      (a, b) {
+        return b.transactionDate.compareTo(a.transactionDate);
+      },
+    );
+
+    setState(() {
+      transactionsList = transactionsDebitList;
+      retrievedtransactionsList = retrievedtransactionsDebitList;
+
+      _loading = false;
+    });
+  }
+
+  Future<void> filterTransactionyDate(DateTime from, DateTime to) async {
+    retrievedtransactionsList = await service.retrieveAllTransactions();
+    List<Transactions> results = [];
+    if (from.toString().isEmpty || to.toString().isEmpty) {
+      results = await service.retrieveAllTransactions();
+    } else {
+      results = retrievedtransactionsList!
+          .where((transaction) =>
+              transaction.transactionDate.isAfter(from) &&
+              transaction.transactionDate.isBefore(to))
+          .toList();
+      results.sort(
+        (a, b) {
+          return b.transactionDate.compareTo(a.transactionDate);
+        },
+      );
+    }
+
+    // Refresh the UI
+    setState(() {
+      _startDateController.clear();
+      _endDateController.clear();
+      retrievedtransactionsList = results;
+    });
+  }
+
+  Future<void> filterComplexTransaction(
+      DateTime from, DateTime to, String transactionType) async {
+    setState(() {
+      _loading = true;
+    });
+    retrievedtransactionsList = await service.retrieveAllTransactions();
+    List<Transactions> results = [];
+    if (from.toString().isEmpty || to.toString().isEmpty) {
+      results = await service.retrieveAllTransactions();
+    } else {
+      results = retrievedtransactionsList!
+          .where((transaction) =>
+              transaction.transactionDate.isAfter(from) &&
+              transaction.transactionDate.isBefore(to) &&
+              transaction.transactionType.contains(transactionType))
+          .toList();
+      results.sort(
+        (a, b) {
+          return b.transactionDate.compareTo(a.transactionDate);
+        },
+      );
+    }
+
+    // Refresh the UI
+    setState(() {
+      _loading = false;
+      _startDateController.clear();
+      _endDateController.clear();
+      _transactionTypeController.clear();
+      retrievedtransactionsList = results;
+    });
+  }
+
+  Future<void> ComplexTransacModal() {
+    return showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        enableDrag: false,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(35.0),
+          ),
+        ),
+        builder: (BuildContext context) =>
+            StatefulBuilder(builder: (context, setModalState) {
+              return Form(
+                key: _formKey,
+                child: Padding(
+                    padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom),
+                    child: Container(
+                      padding: const EdgeInsets.all(25.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            height: 40.0,
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                'Date :',
+                                style: TextStyle(
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                width: 20.0,
+                              ),
+                              Expanded(
+                                  child: TextFormField(
+                                controller: _startDateController,
+                                decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    hintText: 'Start Date',
+                                    suffixIcon: Icon(Icons.arrow_drop_down)),
+                                keyboardType: TextInputType.datetime,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                onFieldSubmitted: (value) {},
+                                validator: (value) {
+                                  if (value!.trim().isEmpty) {
+                                    return 'Start Date is required';
+                                  }
+                                },
+                                readOnly: true,
+                                onTap: () {
+                                  showModalBottomSheet(
+                                      context: context,
+                                      builder: (BuildContext builder) {
+                                        return Container(
+                                            height: MediaQuery.of(context)
+                                                    .copyWith()
+                                                    .size
+                                                    .height /
+                                                3,
+                                            child: CupertinoDatePicker(
+                                              onDateTimeChanged:
+                                                  (DateTime newdate) {
+                                                var inputFormat =
+                                                    DateFormat('dd/MM/yyyy');
+
+                                                startDate = newdate;
+                                                String startDateText =
+                                                    inputFormat.format(newdate);
+
+                                                _startDateController.value =
+                                                    TextEditingValue(
+                                                  text: startDateText,
+                                                  selection: TextSelection
+                                                      .fromPosition(
+                                                    TextPosition(
+                                                        offset: startDateText
+                                                            .toString()
+                                                            .length),
+                                                  ),
+                                                );
+                                              },
+                                              mode:
+                                                  CupertinoDatePickerMode.date,
+                                            ));
+                                      });
+                                },
+                              )),
+                              SizedBox(
+                                width: 15.0,
+                              ),
+                              Expanded(
+                                  child: TextFormField(
+                                controller: _endDateController,
+                                decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    hintText: 'End Date',
+                                    suffixIcon: Icon(Icons.arrow_drop_down)),
+                                keyboardType: TextInputType.datetime,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                onFieldSubmitted: (value) {},
+                                validator: (value) {
+                                  if (value!.trim().isEmpty) {
+                                    return 'End Date is required';
+                                  }
+                                },
+                                readOnly: true,
+                                onTap: () {
+                                  showModalBottomSheet(
+                                      context: context,
+                                      builder: (BuildContext builder) {
+                                        return Container(
+                                            height: MediaQuery.of(context)
+                                                    .copyWith()
+                                                    .size
+                                                    .height /
+                                                3,
+                                            child: CupertinoDatePicker(
+                                              minimumDate: startDate,
+                                              initialDateTime: startDate,
+                                              onDateTimeChanged:
+                                                  (DateTime newdate) {
+                                                var inputFormat =
+                                                    DateFormat('dd/MM/yyyy');
+
+                                                endDate = newdate;
+                                                String endDateText =
+                                                    inputFormat.format(newdate);
+
+                                                _endDateController.value =
+                                                    TextEditingValue(
+                                                  text: endDateText,
+                                                  selection: TextSelection
+                                                      .fromPosition(
+                                                    TextPosition(
+                                                        offset: endDateText
+                                                            .toString()
+                                                            .length),
+                                                  ),
+                                                );
+                                              },
+                                              mode:
+                                                  CupertinoDatePickerMode.date,
+                                            ));
+                                      });
+                                },
+                              )),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 40.0,
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                'Transaction Type :',
+                                style: TextStyle(
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                width: 20.0,
+                              ),
+                              Expanded(
+                                  child: TextFormField(
+                                controller: _transactionTypeController,
+                                decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    hintText: 'Select Type',
+                                    suffixIcon: Icon(Icons.arrow_drop_down)),
+                                keyboardType: TextInputType.datetime,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                onFieldSubmitted: (value) {},
+                                validator: (value) {
+                                  if (value!.trim().isEmpty) {
+                                    return 'Transaction type is required';
+                                  }
+                                },
+                                readOnly: true,
+                                onTap: () {
+                                  _showtransactionType2();
+                                },
+                              ))
+                            ],
+                          ),
+                          SizedBox(
+                            height: 60.0,
+                          ),
+                          ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  primary: Color.fromARGB(255, 35, 63, 105),
+                                  minimumSize: const Size.fromHeight(60),
+                                  textStyle: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold)),
+                              onPressed: !_loading
+                                  ? () {
+                                      if (_formKey.currentState!.validate()) {
+                                        Navigator.pop(context);
+                                        filterComplexTransaction(
+                                            startDate,
+                                            endDate,
+                                            _transactionTypeController.text
+                                                .toString());
+                                      }
+                                    }
+                                  : null,
+                              child: Text('GO')),
+                          SizedBox(
+                            height: 70.0,
+                          )
+                        ],
+                      ),
+                    )),
+              );
+            }));
   }
 }

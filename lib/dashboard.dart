@@ -13,7 +13,6 @@ import 'package:intl/intl.dart';
 import 'package:proj_1/Transactions.dart';
 import 'package:proj_1/finances_page.dart';
 import 'package:proj_1/signin.dart';
-import 'package:proj_1/user_page.dart';
 
 import 'add_budget_page.dart';
 import 'custom_alert_dialog.dart';
@@ -722,19 +721,20 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
     DateTime end = DateTime.parse(retrievedBudgetList![index].endDate);
 
-    int daysFromToday = service.daysBetween(end, DateTime.now());
+    int daysFromToday = service.daysBetween(DateTime.now(), end);
+    int daysFromStart = service.daysBetween(start, DateTime.now()) + 1;
     double amountSpent = 0.0, remainingAmount = 0.0;
-    if (daysFromToday.isNegative) {
+    if (daysFromStart.isNegative) {
       amountSpent = 0;
     } else {
-      amountSpent =
-          double.parse(retrievedBudgetList![index].dailyLimit) * daysFromToday;
-    }
-
-    int isBudgetComplete = service.daysBetween(start, end);
-    print('is budget complete $isBudgetComplete');
-    if (isBudgetComplete.isNegative || isBudgetComplete == 0) {
-      deleteBudget(retrievedBudgetList![index].budgetName, 0, 'completed');
+      if (daysFromToday == 0) {
+        deleteBudget(retrievedBudgetList![index].budgetName, 0, 'completed');
+      } else {
+        if (daysFromStart > 0) {
+          amountSpent = double.parse(retrievedBudgetList![index].dailyLimit) *
+              daysFromStart;
+        }
+      }
     }
 
     budgetAmt = NumberFormat.currency(locale: "en_NG", symbol: "₦")

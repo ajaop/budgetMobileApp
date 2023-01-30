@@ -40,6 +40,19 @@ class DatabaseService {
         .toList();
   }
 
+  Future<List<Transactions>> retrieveTransactionsDebit() async {
+    QuerySnapshot<Map<String, dynamic>> snapshot = await _db
+        .collection("expenses")
+        .doc("transactions")
+        .collection(user!.email.toString())
+        .where('TransactionType', isEqualTo: 'Debit')
+        .get();
+
+    return snapshot.docs
+        .map((docSnapshot) => Transactions.fromDocumentSnapshot(docSnapshot))
+        .toList();
+  }
+
   Future<List<Transactions>> retrieveAllTransactions() async {
     QuerySnapshot<Map<String, dynamic>> snapshot = await _db
         .collection("expenses")
