@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'Transactions.dart';
+import 'custom_alert_dialog.dart';
 import 'database_service.dart';
 
 class FinancesPage extends StatefulWidget {
@@ -15,6 +18,7 @@ class FinancesPage extends StatefulWidget {
 
 class _FinancesPageState extends State<FinancesPage> {
   ScrollController? _controller;
+  FirebaseAuth auth = FirebaseAuth.instance;
   final _startDateController = TextEditingController();
   final _endDateController = TextEditingController();
   final _transactionTypeController = TextEditingController();
@@ -632,6 +636,7 @@ class _FinancesPageState extends State<FinancesPage> {
   }
 
   Widget _transactionItemBuilder(BuildContext context, int index) {
+    final transaction = retrievedtransactionsList![index].transactionTitle;
     var transactionAmt = NumberFormat.currency(locale: "en_NG", symbol: "₦")
         .format(
             double.parse(retrievedtransactionsList![index].transactionAmount));
@@ -710,76 +715,105 @@ class _FinancesPageState extends State<FinancesPage> {
                   ),
                 ),
               )),
-          Container(
-            height: 65.0,
-            decoration: BoxDecoration(
-                border: Border.all(
-                  color: Color.fromARGB(255, 223, 220, 220),
+          Dismissible(
+            direction: DismissDirection.endToStart,
+            key: UniqueKey(),
+            onDismissed: (direction) {
+              deleteTransaction(retrievedtransactionsList![index]
+                  .transactionTitle
+                  .toLowerCase());
+              setState(() {
+                retrievedtransactionsList!.removeAt(index);
+              });
+            },
+            background: Container(
+              color: Colors.red[800],
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    'Delete Transaction',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15.0),
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(15.0)),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10.0, 0, 15.0, 0),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    minRadius: 25.0,
-                    child: Text(imageText),
+              ),
+            ),
+            child: Container(
+              height: 65.0,
+              decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Color.fromARGB(255, 223, 220, 220),
                   ),
-                  SizedBox(
-                    width: 20.0,
-                  ),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              transactionName,
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 8.0,
-                            ),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                retrievedtransactionsList![index]
-                                    .transactionDescription,
+                  borderRadius: BorderRadius.circular(15.0)),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10.0, 0, 15.0, 0),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      minRadius: 25.0,
+                      child: Text(imageText),
+                    ),
+                    SizedBox(
+                      width: 20.0,
+                    ),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                transactionName,
                                 style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                height: 8.0,
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  retrievedtransactionsList![index]
+                                      .transactionDescription,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '$amtSign  $transactionAmt',
+                                style: TextStyle(
+                                    color: amtColor,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                height: 8.0,
+                              ),
+                              Text(
+                                formattedTransacTime,
+                                style: TextStyle(
                                     color: Colors.grey[700],
                                     fontWeight: FontWeight.w500),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              '$amtSign  $transactionAmt',
-                              style: TextStyle(
-                                  color: amtColor, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 8.0,
-                            ),
-                            Text(
-                              formattedTransacTime,
-                              style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontWeight: FontWeight.w500),
-                            )
-                          ],
-                        )
-                      ],
+                              )
+                            ],
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -887,6 +921,42 @@ class _FinancesPageState extends State<FinancesPage> {
       _endDateController.clear();
       retrievedtransactionsList = results;
     });
+  }
+
+  Future<void> deleteTransaction(title) async {
+    setState(() {
+      _loading = true;
+    });
+    final User? user = auth.currentUser;
+
+    await FirebaseFirestore.instance
+        .collection("expenses")
+        .doc("transactions")
+        .collection(user!.email.toString())
+        .where('LowerCaseTrasactionTitle', isEqualTo: title)
+        .get()
+        .then((value) => value.docs.forEach((doc) {
+              doc.reference.delete().then((value) {
+                errorDialog('Transaction Deleted Successfully', false);
+              }, onError: (e) {
+                errorDialog(e.toString(), true);
+              });
+            }));
+
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  void errorDialog(errorMessage, isError) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isError ? Colors.red[600] : Colors.green[600],
+        elevation: 0,
+        content: Text(
+          errorMessage,
+          textAlign: TextAlign.center,
+        )));
   }
 
   Future<void> filterComplexTransaction(
