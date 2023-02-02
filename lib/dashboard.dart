@@ -295,48 +295,55 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                                                       height:
                                                                           10.0,
                                                                     ),
-                                                                    TextFormField(
-                                                                      inputFormatters: [
-                                                                        CurrencyTextInputFormatter(
-                                                                          locale:
-                                                                              'en_NG',
-                                                                          decimalDigits:
-                                                                              0,
-                                                                          symbol:
-                                                                              '₦',
-                                                                        ),
-                                                                        LengthLimitingTextInputFormatter(
-                                                                            21),
-                                                                      ],
-                                                                      controller:
-                                                                          _amountController,
-                                                                      decoration:
-                                                                          const InputDecoration(
-                                                                        border:
-                                                                            OutlineInputBorder(),
-                                                                        hintText:
-                                                                            '12,000.00',
+                                                                    Theme(
+                                                                      data: Theme.of(
+                                                                              context)
+                                                                          .copyWith(
+                                                                        colorScheme: ThemeData()
+                                                                            .colorScheme
+                                                                            .copyWith(primary: Color.fromARGB(255, 44, 79, 106)),
                                                                       ),
-                                                                      keyboardType:
-                                                                          TextInputType
-                                                                              .number,
-                                                                      autovalidateMode:
-                                                                          AutovalidateMode
-                                                                              .onUserInteraction,
-                                                                      onFieldSubmitted:
-                                                                          (value) {},
-                                                                      validator:
-                                                                          (value) {
-                                                                        if (value!
-                                                                            .trim()
-                                                                            .isEmpty) {
-                                                                          return 'Amount is required';
-                                                                        } else if (value.replaceAll('₦',
-                                                                                '') ==
-                                                                            '0') {
-                                                                          return 'Amount can not be 0';
-                                                                        }
-                                                                      },
+                                                                      child:
+                                                                          TextFormField(
+                                                                        inputFormatters: [
+                                                                          CurrencyTextInputFormatter(
+                                                                            locale:
+                                                                                'en_NG',
+                                                                            decimalDigits:
+                                                                                0,
+                                                                            symbol:
+                                                                                '₦',
+                                                                          ),
+                                                                          LengthLimitingTextInputFormatter(
+                                                                              21),
+                                                                        ],
+                                                                        controller:
+                                                                            _amountController,
+                                                                        decoration:
+                                                                            const InputDecoration(
+                                                                          border:
+                                                                              OutlineInputBorder(),
+                                                                          hintText:
+                                                                              '12,000.00',
+                                                                        ),
+                                                                        keyboardType:
+                                                                            TextInputType.number,
+                                                                        autovalidateMode:
+                                                                            AutovalidateMode.onUserInteraction,
+                                                                        onFieldSubmitted:
+                                                                            (value) {},
+                                                                        validator:
+                                                                            (value) {
+                                                                          if (value!
+                                                                              .trim()
+                                                                              .isEmpty) {
+                                                                            return 'Amount is required';
+                                                                          } else if (value.replaceAll('₦', '') ==
+                                                                              '0') {
+                                                                            return 'Amount can not be 0';
+                                                                          }
+                                                                        },
+                                                                      ),
                                                                     ),
                                                                     const SizedBox(
                                                                       height:
@@ -369,47 +376,54 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                                                       height:
                                                                           10.0,
                                                                     ),
-                                                                    TextFormField(
-                                                                      controller:
-                                                                          _amountDescriptionController,
-                                                                      maxLength:
-                                                                          15,
-                                                                      inputFormatters: <
-                                                                          TextInputFormatter>[
-                                                                        FilteringTextInputFormatter.allow(
-                                                                            RegExp("[a-zA-Z ]")),
-                                                                        LengthLimitingTextInputFormatter(
-                                                                            100),
-                                                                      ],
-                                                                      decoration:
-                                                                          const InputDecoration(
-                                                                        border:
-                                                                            OutlineInputBorder(),
-                                                                        hintText:
-                                                                            'Bonus Amount',
+                                                                    Theme(
+                                                                      data: Theme.of(
+                                                                              context)
+                                                                          .copyWith(
+                                                                        colorScheme: ThemeData()
+                                                                            .colorScheme
+                                                                            .copyWith(primary: Color.fromARGB(255, 44, 79, 106)),
                                                                       ),
-                                                                      keyboardType:
-                                                                          TextInputType
-                                                                              .text,
-                                                                      textCapitalization:
-                                                                          TextCapitalization
-                                                                              .sentences,
-                                                                      autovalidateMode:
-                                                                          AutovalidateMode
-                                                                              .onUserInteraction,
-                                                                      onFieldSubmitted:
-                                                                          (value) {},
-                                                                      validator:
-                                                                          (value) {
-                                                                        if (value!
-                                                                            .trim()
-                                                                            .isEmpty) {
-                                                                          return 'Description is required';
-                                                                        } else if (value
-                                                                            .startsWith(RegExp(r'[0-9]'))) {
-                                                                          return 'Description is not valid';
-                                                                        }
-                                                                      },
+                                                                      child:
+                                                                          TextFormField(
+                                                                        controller:
+                                                                            _amountDescriptionController,
+                                                                        maxLength:
+                                                                            15,
+                                                                        inputFormatters: <
+                                                                            TextInputFormatter>[
+                                                                          FilteringTextInputFormatter.allow(
+                                                                              RegExp("[a-zA-Z ]")),
+                                                                          LengthLimitingTextInputFormatter(
+                                                                              100),
+                                                                        ],
+                                                                        decoration:
+                                                                            const InputDecoration(
+                                                                          border:
+                                                                              OutlineInputBorder(),
+                                                                          hintText:
+                                                                              'Bonus Amount',
+                                                                        ),
+                                                                        keyboardType:
+                                                                            TextInputType.text,
+                                                                        textCapitalization:
+                                                                            TextCapitalization.sentences,
+                                                                        autovalidateMode:
+                                                                            AutovalidateMode.onUserInteraction,
+                                                                        onFieldSubmitted:
+                                                                            (value) {},
+                                                                        validator:
+                                                                            (value) {
+                                                                          if (value!
+                                                                              .trim()
+                                                                              .isEmpty) {
+                                                                            return 'Description is required';
+                                                                          } else if (value
+                                                                              .startsWith(RegExp(r'[0-9]'))) {
+                                                                            return 'Description is not valid';
+                                                                          }
+                                                                        },
+                                                                      ),
                                                                     ),
                                                                     SizedBox(
                                                                       height:
@@ -420,7 +434,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                                                             shape: RoundedRectangleBorder(
                                                                               borderRadius: BorderRadius.circular(10),
                                                                             ),
-                                                                            primary: Colors.blue,
+                                                                            primary: Color.fromARGB(255, 4, 44, 76),
                                                                             minimumSize: const Size.fromHeight(60),
                                                                             textStyle: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                                                                         onPressed: !_loading

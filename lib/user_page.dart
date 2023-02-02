@@ -76,734 +76,810 @@ class _UserPageState extends State<UserPage> {
             onRefresh: () {
               return getAllValues();
             },
-            child: SafeArea(
-                child: Column(
+            child: ListView(
               children: [
-                Container(
-                  height: 270.0,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Color.fromARGB(255, 223, 220, 220),
+                SafeArea(
+                    child: Column(
+                  children: [
+                    Container(
+                      height: 270.0,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Color.fromARGB(255, 223, 220, 220),
+                        ),
+                        borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(40.0),
+                            bottomRight: Radius.circular(40.0)),
+                        color: Color.fromARGB(255, 242, 240, 240),
+                        boxShadow: const [
+                          BoxShadow(
+                              color: Colors.grey, //New
+                              blurRadius: 25.0,
+                              offset: Offset(0, -10))
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 30.0,
+                          ),
+                          Center(
+                              child: _imageLoaded
+                                  ? Stack(
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        CircleAvatar(
+                                            radius: 80.0,
+                                            child: CachedNetworkImage(
+                                              imageUrl:
+                                                  user?.photoURL.toString() ??
+                                                      '',
+                                              imageBuilder:
+                                                  (context, imageProvider) =>
+                                                      Container(
+                                                width: 160.0,
+                                                height: 160.0,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  image: DecorationImage(
+                                                      image: imageProvider,
+                                                      fit: BoxFit.cover),
+                                                ),
+                                              ),
+                                              placeholder: (context, url) =>
+                                                  CircularProgressIndicator(),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      Icon(Icons.error),
+                                            )),
+                                        Positioned(
+                                            bottom: 0,
+                                            right: -25,
+                                            child: RawMaterialButton(
+                                              onPressed: () {
+                                                _dialogBuilder(context);
+                                              },
+                                              elevation: 2.0,
+                                              fillColor: Color(0xFFF5F6F9),
+                                              child: Icon(
+                                                Icons.camera_alt_outlined,
+                                              ),
+                                              padding: EdgeInsets.all(15.0),
+                                              shape: CircleBorder(),
+                                            ))
+                                      ],
+                                    )
+                                  : Stack(
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        const CircleAvatar(
+                                          radius: 80.0,
+                                          backgroundImage:
+                                              AssetImage('images/profile.png'),
+                                        ),
+                                        Positioned(
+                                            bottom: 0,
+                                            right: -25,
+                                            child: RawMaterialButton(
+                                              onPressed: () {
+                                                _dialogBuilder(context);
+                                              },
+                                              elevation: 2.0,
+                                              fillColor: Color(0xFFF5F6F9),
+                                              child: const Icon(
+                                                Icons.camera_alt_outlined,
+                                              ),
+                                              padding: EdgeInsets.all(15.0),
+                                              shape: const CircleBorder(),
+                                            )),
+                                      ],
+                                    )),
+                          SizedBox(
+                            height: 30.0,
+                          ),
+                          Text(
+                            fullName,
+                            style: TextStyle(
+                              fontSize: 25.0,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 4, 44, 76),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(40.0),
-                        bottomRight: Radius.circular(40.0)),
-                    color: Color.fromARGB(255, 242, 240, 240),
-                    boxShadow: const [
-                      BoxShadow(
-                          color: Colors.grey, //New
-                          blurRadius: 25.0,
-                          offset: Offset(0, -10))
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      Center(
-                          child: _imageLoaded
-                              ? Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    CircleAvatar(
-                                        radius: 80.0,
-                                        child: CachedNetworkImage(
-                                          imageUrl: user!.photoURL.toString(),
-                                          imageBuilder:
-                                              (context, imageProvider) =>
-                                                  Container(
-                                            width: 160.0,
-                                            height: 160.0,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              image: DecorationImage(
-                                                  image: imageProvider,
-                                                  fit: BoxFit.cover),
-                                            ),
-                                          ),
-                                          placeholder: (context, url) =>
-                                              CircularProgressIndicator(),
-                                          errorWidget: (context, url, error) =>
-                                              Icon(Icons.error),
-                                        )),
-                                    Positioned(
-                                        bottom: 0,
-                                        right: -25,
-                                        child: RawMaterialButton(
-                                          onPressed: () {
-                                            _dialogBuilder(context);
-                                          },
-                                          elevation: 2.0,
-                                          fillColor: Color(0xFFF5F6F9),
-                                          child: Icon(
-                                            Icons.camera_alt_outlined,
-                                          ),
-                                          padding: EdgeInsets.all(15.0),
-                                          shape: CircleBorder(),
-                                        ))
-                                  ],
-                                )
-                              : Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    const CircleAvatar(
-                                      radius: 80.0,
-                                      backgroundImage:
-                                          AssetImage('images/profile.png'),
+                    SizedBox(
+                      height: 30.0,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(15.0),
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 65.0,
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Color.fromARGB(255, 223, 220, 220),
+                                ),
+                                borderRadius: BorderRadius.circular(20.0)),
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _editAccount = false;
+                                  buttonName = 'Edit Information';
+                                });
+                                _firstNameController.text = firstName;
+                                _lastNameController.text = lastName;
+                                showModalBottomSheet<void>(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    enableDrag: false,
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(35.0),
+                                      ),
                                     ),
-                                    Positioned(
-                                        bottom: 0,
-                                        right: -25,
-                                        child: RawMaterialButton(
-                                          onPressed: () {
-                                            _dialogBuilder(context);
-                                          },
-                                          elevation: 2.0,
-                                          fillColor: Color(0xFFF5F6F9),
-                                          child: const Icon(
-                                            Icons.camera_alt_outlined,
-                                          ),
-                                          padding: EdgeInsets.all(15.0),
-                                          shape: const CircleBorder(),
-                                        )),
-                                  ],
-                                )),
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      Text(
-                        fullName,
-                        style: TextStyle(
-                          fontSize: 25.0,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 4, 44, 76),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 30.0,
-                ),
-                Padding(
-                  padding: EdgeInsets.all(15.0),
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 65.0,
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Color.fromARGB(255, 223, 220, 220),
-                            ),
-                            borderRadius: BorderRadius.circular(20.0)),
-                        child: InkWell(
-                          onTap: () {
-                            _firstNameController.text = firstName;
-                            _lastNameController.text = lastName;
-                            showModalBottomSheet<void>(
-                                context: context,
-                                isScrollControlled: true,
-                                enableDrag: false,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(35.0),
-                                  ),
-                                ),
-                                builder: (BuildContext context) =>
-                                    StatefulBuilder(
-                                        builder: (context, setModalState) {
-                                      return Padding(
-                                        padding: EdgeInsets.only(
-                                            bottom: MediaQuery.of(context)
-                                                .viewInsets
-                                                .bottom),
-                                        child: Container(
-                                            padding: const EdgeInsets.all(25.0),
-                                            child: Form(
-                                                key: _formKey,
-                                                child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      Text(
-                                                        'Account Information',
-                                                        style: TextStyle(
-                                                            fontSize: 20.0,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w700),
-                                                      ),
-                                                      SizedBox(
-                                                        height: 40.0,
-                                                      ),
-                                                      const Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text(
-                                                          'First Name',
-                                                          style: TextStyle(
-                                                            fontFamily:
-                                                                'OpenSans',
-                                                            letterSpacing: 0.6,
-                                                            fontSize: 16.0,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(
-                                                        height: 5.0,
-                                                      ),
-                                                      TextFormField(
-                                                        enabled: _editAccount,
-                                                        controller:
-                                                            _firstNameController,
-                                                        inputFormatters: <
-                                                            TextInputFormatter>[
-                                                          FilteringTextInputFormatter
-                                                              .allow(RegExp(
-                                                                  "[a-zA-Z ]")),
-                                                          LengthLimitingTextInputFormatter(
-                                                              100),
-                                                        ],
-                                                        decoration:
-                                                            const InputDecoration(
-                                                          prefixIcon: Icon(Icons
-                                                              .person_outline),
-                                                          border:
-                                                              OutlineInputBorder(),
-                                                        ),
-                                                        keyboardType:
-                                                            TextInputType.text,
-                                                        textCapitalization:
-                                                            TextCapitalization
-                                                                .sentences,
-                                                        autovalidateMode:
-                                                            AutovalidateMode
-                                                                .onUserInteraction,
-                                                        onFieldSubmitted:
-                                                            (value) {},
-                                                        validator: (value) {
-                                                          if (value!
-                                                              .trim()
-                                                              .isEmpty) {
-                                                            return 'First Name is required';
-                                                          } else if (value
-                                                              .startsWith(RegExp(
-                                                                  r'[0-9]'))) {
-                                                            return 'First name is not valid';
-                                                          }
-                                                        },
-                                                      ),
-                                                      const SizedBox(
-                                                        height: 30.0,
-                                                      ),
-                                                      const Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text(
-                                                          'Last Name',
-                                                          style: TextStyle(
-                                                            fontFamily:
-                                                                'OpenSans',
-                                                            letterSpacing: 0.6,
-                                                            fontSize: 16.0,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(
-                                                        height: 5.0,
-                                                      ),
-                                                      TextFormField(
-                                                        enabled: _editAccount,
-                                                        controller:
-                                                            _lastNameController,
-                                                        inputFormatters: <
-                                                            TextInputFormatter>[
-                                                          FilteringTextInputFormatter
-                                                              .allow(RegExp(
-                                                                  "[a-zA-Z ]")),
-                                                          LengthLimitingTextInputFormatter(
-                                                              100),
-                                                        ],
-                                                        decoration:
-                                                            const InputDecoration(
-                                                          prefixIcon: Icon(Icons
-                                                              .person_outline),
-                                                          border:
-                                                              OutlineInputBorder(),
-                                                        ),
-                                                        keyboardType:
-                                                            TextInputType.text,
-                                                        textCapitalization:
-                                                            TextCapitalization
-                                                                .sentences,
-                                                        autovalidateMode:
-                                                            AutovalidateMode
-                                                                .onUserInteraction,
-                                                        onFieldSubmitted:
-                                                            (value) {},
-                                                        validator: (value) {
-                                                          if (value!
-                                                              .trim()
-                                                              .isEmpty) {
-                                                            return 'Last Name is required';
-                                                          } else if (value
-                                                              .startsWith(RegExp(
-                                                                  r'[0-9]'))) {
-                                                            return 'Last name is not valid';
-                                                          }
-                                                        },
-                                                      ),
-                                                      SizedBox(
-                                                        height: 60.0,
-                                                      ),
-                                                      ElevatedButton(
-                                                          style: ElevatedButton.styleFrom(
-                                                              primary: Color
-                                                                  .fromARGB(
-                                                                      255,
-                                                                      4,
-                                                                      44,
-                                                                      76),
-                                                              minimumSize:
-                                                                  const Size
-                                                                          .fromHeight(
-                                                                      60),
-                                                              textStyle: const TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize: 20,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700)),
-                                                          onPressed: !_loading
-                                                              ? () {
-                                                                  String name1,
-                                                                      name2;
-                                                                  name1 = _firstNameController
-                                                                      .text
-                                                                      .toString();
+                                    builder:
+                                        (BuildContext context) =>
+                                            StatefulBuilder(builder:
+                                                (context, setModalState) {
+                                              return Padding(
+                                                padding: EdgeInsets.only(
+                                                    bottom:
+                                                        MediaQuery.of(context)
+                                                            .viewInsets
+                                                            .bottom),
+                                                child: Container(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            25.0),
+                                                    child: Form(
+                                                        key: _formKey,
+                                                        child: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              Text(
+                                                                'Account Information',
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        20.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w700),
+                                                              ),
+                                                              SizedBox(
+                                                                height: 40.0,
+                                                              ),
+                                                              const Align(
+                                                                alignment: Alignment
+                                                                    .centerLeft,
+                                                                child: Text(
+                                                                  'First Name',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontFamily:
+                                                                        'OpenSans',
+                                                                    letterSpacing:
+                                                                        0.6,
+                                                                    fontSize:
+                                                                        16.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 5.0,
+                                                              ),
+                                                              Theme(
+                                                                data: Theme.of(
+                                                                        context)
+                                                                    .copyWith(
+                                                                  colorScheme: ThemeData()
+                                                                      .colorScheme
+                                                                      .copyWith(
+                                                                          primary: Color.fromARGB(
+                                                                              255,
+                                                                              44,
+                                                                              79,
+                                                                              106)),
+                                                                ),
+                                                                child:
+                                                                    TextFormField(
+                                                                  enabled:
+                                                                      _editAccount,
+                                                                  controller:
+                                                                      _firstNameController,
+                                                                  inputFormatters: <
+                                                                      TextInputFormatter>[
+                                                                    FilteringTextInputFormatter
+                                                                        .allow(RegExp(
+                                                                            "[a-zA-Z ]")),
+                                                                    LengthLimitingTextInputFormatter(
+                                                                        100),
+                                                                  ],
+                                                                  decoration:
+                                                                      const InputDecoration(
+                                                                    focusedBorder:
+                                                                        OutlineInputBorder(),
+                                                                    prefixIcon:
+                                                                        Icon(Icons
+                                                                            .person_outline),
+                                                                    border:
+                                                                        OutlineInputBorder(),
+                                                                  ),
+                                                                  keyboardType:
+                                                                      TextInputType
+                                                                          .text,
+                                                                  textCapitalization:
+                                                                      TextCapitalization
+                                                                          .sentences,
+                                                                  autovalidateMode:
+                                                                      AutovalidateMode
+                                                                          .onUserInteraction,
+                                                                  onFieldSubmitted:
+                                                                      (value) {},
+                                                                  validator:
+                                                                      (value) {
+                                                                    if (value!
+                                                                        .trim()
+                                                                        .isEmpty) {
+                                                                      return 'First Name is required';
+                                                                    } else if (value
+                                                                        .startsWith(
+                                                                            RegExp(r'[0-9]'))) {
+                                                                      return 'First name is not valid';
+                                                                    }
+                                                                  },
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 30.0,
+                                                              ),
+                                                              const Align(
+                                                                alignment: Alignment
+                                                                    .centerLeft,
+                                                                child: Text(
+                                                                  'Last Name',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontFamily:
+                                                                        'OpenSans',
+                                                                    letterSpacing:
+                                                                        0.6,
+                                                                    fontSize:
+                                                                        16.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 5.0,
+                                                              ),
+                                                              Theme(
+                                                                data: Theme.of(
+                                                                        context)
+                                                                    .copyWith(
+                                                                  colorScheme: ThemeData()
+                                                                      .colorScheme
+                                                                      .copyWith(
+                                                                          primary: Color.fromARGB(
+                                                                              255,
+                                                                              44,
+                                                                              79,
+                                                                              106)),
+                                                                ),
+                                                                child:
+                                                                    TextFormField(
+                                                                  enabled:
+                                                                      _editAccount,
+                                                                  controller:
+                                                                      _lastNameController,
+                                                                  inputFormatters: <
+                                                                      TextInputFormatter>[
+                                                                    FilteringTextInputFormatter
+                                                                        .allow(RegExp(
+                                                                            "[a-zA-Z ]")),
+                                                                    LengthLimitingTextInputFormatter(
+                                                                        100),
+                                                                  ],
+                                                                  decoration:
+                                                                      const InputDecoration(
+                                                                    focusedBorder:
+                                                                        OutlineInputBorder(),
+                                                                    prefixIcon:
+                                                                        Icon(Icons
+                                                                            .person_outline),
+                                                                    border:
+                                                                        OutlineInputBorder(),
+                                                                  ),
+                                                                  keyboardType:
+                                                                      TextInputType
+                                                                          .text,
+                                                                  textCapitalization:
+                                                                      TextCapitalization
+                                                                          .sentences,
+                                                                  autovalidateMode:
+                                                                      AutovalidateMode
+                                                                          .onUserInteraction,
+                                                                  onFieldSubmitted:
+                                                                      (value) {},
+                                                                  validator:
+                                                                      (value) {
+                                                                    if (value!
+                                                                        .trim()
+                                                                        .isEmpty) {
+                                                                      return 'Last Name is required';
+                                                                    } else if (value
+                                                                        .startsWith(
+                                                                            RegExp(r'[0-9]'))) {
+                                                                      return 'Last name is not valid';
+                                                                    }
+                                                                  },
+                                                                ),
+                                                              ),
+                                                              SizedBox(
+                                                                height: 60.0,
+                                                              ),
+                                                              ElevatedButton(
+                                                                  style: ElevatedButton.styleFrom(
+                                                                      primary: Color
+                                                                          .fromARGB(
+                                                                              255,
+                                                                              4,
+                                                                              44,
+                                                                              76),
+                                                                      minimumSize:
+                                                                          const Size.fromHeight(
+                                                                              60),
+                                                                      textStyle: const TextStyle(
+                                                                          color: Colors
+                                                                              .white,
+                                                                          fontSize:
+                                                                              20,
+                                                                          fontWeight: FontWeight
+                                                                              .w600)),
+                                                                  onPressed:
+                                                                      !_loading
+                                                                          ? () {
+                                                                              String name1, name2;
+                                                                              name1 = _firstNameController.text.toString();
 
-                                                                  name2 = _lastNameController
-                                                                      .text
-                                                                      .toString();
-                                                                  if (_formKey
-                                                                      .currentState!
-                                                                      .validate()) {
-                                                                    editAccountInfo(
-                                                                        setModalState,
-                                                                        name1
-                                                                            .trim(),
-                                                                        name2
-                                                                            .trim());
-                                                                  }
-                                                                }
-                                                              : null,
-                                                          child:
-                                                              Text(buttonName)),
-                                                      SizedBox(
-                                                        height: 50.0,
-                                                      )
-                                                    ]))),
-                                      );
-                                    }));
-                          },
-                          child: Row(
-                            children: const [
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(15.0, 0, 8.0, 0),
-                                child: Icon(
-                                  Icons.person_outline,
-                                  size: 30.0,
-                                  color: Color.fromARGB(255, 4, 44, 76),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(50.0, 0, 10.0, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Account Information',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600),
+                                                                              name2 = _lastNameController.text.toString();
+                                                                              if (_formKey.currentState!.validate()) {
+                                                                                editAccountInfo(setModalState, name1.trim(), name2.trim());
+                                                                              }
+                                                                            }
+                                                                          : null,
+                                                                  child: Text(
+                                                                      buttonName)),
+                                                              SizedBox(
+                                                                height: 90.0,
+                                                              )
+                                                            ]))),
+                                              );
+                                            }));
+                              },
+                              child: Row(
+                                children: const [
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(15.0, 0, 8.0, 0),
+                                    child: Icon(
+                                      Icons.person_outline,
+                                      size: 30.0,
+                                      color: Color.fromARGB(255, 4, 44, 76),
+                                    ),
                                   ),
-                                ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(50.0, 0, 10.0, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Account Information',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(50.0, 0, 0.0, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Icon(Icons.arrow_forward),
+                                    ),
+                                  )
+                                ],
                               ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(50.0, 0, 0.0, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Icon(Icons.arrow_forward),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      Container(
-                        height: 65.0,
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Color.fromARGB(255, 223, 220, 220),
                             ),
-                            borderRadius: BorderRadius.circular(20.0)),
-                        child: InkWell(
-                          onTap: () {
-                            showModalBottomSheet<void>(
-                                context: context,
-                                isScrollControlled: true,
-                                enableDrag: false,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(35.0),
-                                  ),
-                                ),
-                                builder: (BuildContext context) =>
-                                    StatefulBuilder(
-                                        builder: (context, setModalState2) {
-                                      return Padding(
-                                        padding: EdgeInsets.only(
-                                            bottom: MediaQuery.of(context)
-                                                .viewInsets
-                                                .bottom),
-                                        child: Container(
-                                            padding: const EdgeInsets.all(25.0),
-                                            child: Form(
-                                                key: _formKey,
-                                                child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      Text(
-                                                        'Change Password',
-                                                        style: TextStyle(
-                                                            fontSize: 20.0,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w700),
-                                                      ),
-                                                      SizedBox(
-                                                        height: 40.0,
-                                                      ),
-                                                      const Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text(
-                                                          'New Password',
-                                                          style: TextStyle(
-                                                            fontFamily:
-                                                                'OpenSans',
-                                                            letterSpacing: 0.6,
-                                                            fontSize: 16.0,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(
-                                                        height: 5.0,
-                                                      ),
-                                                      TextFormField(
-                                                        controller:
-                                                            _passwordController,
-                                                        obscureText:
-                                                            _obscureText,
-                                                        decoration:
-                                                            InputDecoration(
-                                                                prefixIcon:
-                                                                    const Icon(Icons
-                                                                        .password),
-                                                                suffixIcon:
-                                                                    IconButton(
-                                                                        onPressed:
-                                                                            () {
-                                                                          setModalState2(
-                                                                              () {
-                                                                            _obscureText =
-                                                                                !_obscureText;
-                                                                          });
-                                                                        },
-                                                                        icon: Icon(_obscureText
-                                                                            ? Icons
-                                                                                .visibility
-                                                                            : Icons
-                                                                                .visibility_off)),
-                                                                border:
-                                                                    const OutlineInputBorder(),
-                                                                hintText:
-                                                                    '*******'),
-                                                        inputFormatters: [
-                                                          LengthLimitingTextInputFormatter(
-                                                              100),
-                                                        ],
-                                                        autovalidateMode:
-                                                            AutovalidateMode
-                                                                .onUserInteraction,
-                                                        validator: (value) {
-                                                          if (value!.isEmpty ||
-                                                              value.length <
-                                                                  6) {
-                                                            return 'Password must be at least 6  character';
-                                                          }
-                                                        },
-                                                      ),
-                                                      const SizedBox(
-                                                        height: 30.0,
-                                                      ),
-                                                      const Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text(
-                                                          'Confirm Password',
-                                                          style: TextStyle(
-                                                            fontFamily:
-                                                                'OpenSans',
-                                                            letterSpacing: 0.6,
-                                                            fontSize: 16.0,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(
-                                                        height: 5.0,
-                                                      ),
-                                                      TextFormField(
-                                                        controller:
-                                                            _confirmPasswordController,
-                                                        obscureText:
-                                                            _obscureText,
-                                                        decoration:
-                                                            InputDecoration(
-                                                                prefixIcon:
-                                                                    const Icon(Icons
-                                                                        .password),
-                                                                suffixIcon:
-                                                                    IconButton(
-                                                                        onPressed:
-                                                                            () {
-                                                                          setModalState2(
-                                                                              () {
-                                                                            _obscureText =
-                                                                                !_obscureText;
-                                                                          });
-                                                                        },
-                                                                        icon: Icon(_obscureText
-                                                                            ? Icons
-                                                                                .visibility
-                                                                            : Icons
-                                                                                .visibility_off)),
-                                                                border:
-                                                                    const OutlineInputBorder(),
-                                                                hintText:
-                                                                    '*******'),
-                                                        inputFormatters: [
-                                                          LengthLimitingTextInputFormatter(
-                                                              100),
-                                                        ],
-                                                        autovalidateMode:
-                                                            AutovalidateMode
-                                                                .onUserInteraction,
-                                                        validator: (value) {
-                                                          if (value !=
-                                                                  _passwordController
-                                                                      .text
-                                                                      .toString() ||
-                                                              value!.isEmpty) {
-                                                            return 'Passwords don\'t match';
-                                                          }
-                                                        },
-                                                      ),
-                                                      SizedBox(
-                                                        height: 60.0,
-                                                      ),
-                                                      ElevatedButton(
-                                                          style: ElevatedButton.styleFrom(
-                                                              primary: Color
-                                                                  .fromARGB(
-                                                                      255,
-                                                                      4,
-                                                                      44,
-                                                                      76),
-                                                              minimumSize:
-                                                                  const Size
-                                                                          .fromHeight(
-                                                                      60),
-                                                              textStyle: const TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize: 20,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700)),
-                                                          onPressed: !_loading
-                                                              ? () {
-                                                                  if (_formKey
-                                                                      .currentState!
-                                                                      .validate()) {
-                                                                    String
-                                                                        pass =
-                                                                        _passwordController
-                                                                            .text
-                                                                            .toString();
-                                                                    _changePassword(
-                                                                        setModalState2,
-                                                                        pass.trim());
-                                                                  }
-                                                                }
-                                                              : null,
-                                                          child: const Text(
-                                                              'Edit Password')),
-                                                      SizedBox(
-                                                        height: 50.0,
-                                                      )
-                                                    ]))),
-                                      );
-                                    }));
-                          },
-                          child: Row(
-                            children: const [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(15.0, 0, 8.0, 0),
-                                child: Icon(
-                                  Icons.password,
-                                  size: 30.0,
-                                  color: Color.fromARGB(255, 4, 44, 76),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(60.0, 0, 20.0, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Change Password',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(53.0, 0, 0.0, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Icon(Icons.arrow_forward),
-                                ),
-                              )
-                            ],
                           ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      Container(
-                        height: 65.0,
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Color.fromARGB(255, 223, 220, 220),
+                          SizedBox(
+                            height: 30.0,
+                          ),
+                          Container(
+                            height: 65.0,
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Color.fromARGB(255, 223, 220, 220),
+                                ),
+                                borderRadius: BorderRadius.circular(20.0)),
+                            child: InkWell(
+                              onTap: () {
+                                showModalBottomSheet<void>(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    enableDrag: false,
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(35.0),
+                                      ),
+                                    ),
+                                    builder:
+                                        (BuildContext context) =>
+                                            StatefulBuilder(builder:
+                                                (context, setModalState2) {
+                                              return Padding(
+                                                padding: EdgeInsets.only(
+                                                    bottom:
+                                                        MediaQuery.of(context)
+                                                            .viewInsets
+                                                            .bottom),
+                                                child: Container(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            25.0),
+                                                    child: Form(
+                                                        key: _formKey,
+                                                        child: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              Text(
+                                                                'Change Password',
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        20.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w700),
+                                                              ),
+                                                              SizedBox(
+                                                                height: 40.0,
+                                                              ),
+                                                              const Align(
+                                                                alignment: Alignment
+                                                                    .centerLeft,
+                                                                child: Text(
+                                                                  'New Password',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontFamily:
+                                                                        'OpenSans',
+                                                                    letterSpacing:
+                                                                        0.6,
+                                                                    fontSize:
+                                                                        16.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 5.0,
+                                                              ),
+                                                              Theme(
+                                                                data: Theme.of(
+                                                                        context)
+                                                                    .copyWith(
+                                                                  colorScheme: ThemeData()
+                                                                      .colorScheme
+                                                                      .copyWith(
+                                                                          primary: Color.fromARGB(
+                                                                              255,
+                                                                              44,
+                                                                              79,
+                                                                              106)),
+                                                                ),
+                                                                child:
+                                                                    TextFormField(
+                                                                  controller:
+                                                                      _passwordController,
+                                                                  obscureText:
+                                                                      _obscureText,
+                                                                  decoration: InputDecoration(
+                                                                      prefixIcon: const Icon(Icons.password),
+                                                                      suffixIcon: IconButton(
+                                                                          onPressed: () {
+                                                                            setModalState2(() {
+                                                                              _obscureText = !_obscureText;
+                                                                            });
+                                                                          },
+                                                                          icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off)),
+                                                                      border: const OutlineInputBorder(),
+                                                                      hintText: '*******'),
+                                                                  inputFormatters: [
+                                                                    LengthLimitingTextInputFormatter(
+                                                                        100),
+                                                                  ],
+                                                                  autovalidateMode:
+                                                                      AutovalidateMode
+                                                                          .onUserInteraction,
+                                                                  validator:
+                                                                      (value) {
+                                                                    if (value!
+                                                                            .isEmpty ||
+                                                                        value.length <
+                                                                            6) {
+                                                                      return 'Password must be at least 6  character';
+                                                                    }
+                                                                  },
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 30.0,
+                                                              ),
+                                                              const Align(
+                                                                alignment: Alignment
+                                                                    .centerLeft,
+                                                                child: Text(
+                                                                  'Confirm Password',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontFamily:
+                                                                        'OpenSans',
+                                                                    letterSpacing:
+                                                                        0.6,
+                                                                    fontSize:
+                                                                        16.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 5.0,
+                                                              ),
+                                                              Theme(
+                                                                data: Theme.of(
+                                                                        context)
+                                                                    .copyWith(
+                                                                  colorScheme: ThemeData()
+                                                                      .colorScheme
+                                                                      .copyWith(
+                                                                          primary: Color.fromARGB(
+                                                                              255,
+                                                                              44,
+                                                                              79,
+                                                                              106)),
+                                                                ),
+                                                                child:
+                                                                    TextFormField(
+                                                                  controller:
+                                                                      _confirmPasswordController,
+                                                                  obscureText:
+                                                                      _obscureText,
+                                                                  decoration: InputDecoration(
+                                                                      prefixIcon: const Icon(Icons.password),
+                                                                      suffixIcon: IconButton(
+                                                                          onPressed: () {
+                                                                            setModalState2(() {
+                                                                              _obscureText = !_obscureText;
+                                                                            });
+                                                                          },
+                                                                          icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off)),
+                                                                      border: const OutlineInputBorder(),
+                                                                      hintText: '*******'),
+                                                                  inputFormatters: [
+                                                                    LengthLimitingTextInputFormatter(
+                                                                        100),
+                                                                  ],
+                                                                  autovalidateMode:
+                                                                      AutovalidateMode
+                                                                          .onUserInteraction,
+                                                                  validator:
+                                                                      (value) {
+                                                                    if (value !=
+                                                                            _passwordController.text
+                                                                                .toString() ||
+                                                                        value!
+                                                                            .isEmpty) {
+                                                                      return 'Passwords don\'t match';
+                                                                    }
+                                                                  },
+                                                                ),
+                                                              ),
+                                                              SizedBox(
+                                                                height: 60.0,
+                                                              ),
+                                                              ElevatedButton(
+                                                                  style: ElevatedButton.styleFrom(
+                                                                      primary: Color
+                                                                          .fromARGB(
+                                                                              255,
+                                                                              4,
+                                                                              44,
+                                                                              76),
+                                                                      minimumSize:
+                                                                          const Size.fromHeight(
+                                                                              60),
+                                                                      textStyle: const TextStyle(
+                                                                          color: Colors
+                                                                              .white,
+                                                                          fontSize:
+                                                                              20,
+                                                                          fontWeight: FontWeight
+                                                                              .w600)),
+                                                                  onPressed:
+                                                                      !_loading
+                                                                          ? () {
+                                                                              if (_formKey.currentState!.validate()) {
+                                                                                String pass = _passwordController.text.toString();
+                                                                                _changePassword(setModalState2, pass.trim());
+                                                                              }
+                                                                            }
+                                                                          : null,
+                                                                  child: const Text(
+                                                                      'Edit Password')),
+                                                              SizedBox(
+                                                                height: 50.0,
+                                                              )
+                                                            ]))),
+                                              );
+                                            }));
+                              },
+                              child: Row(
+                                children: const [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        15.0, 0, 8.0, 0),
+                                    child: Icon(
+                                      Icons.password,
+                                      size: 30.0,
+                                      color: Color.fromARGB(255, 4, 44, 76),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(60.0, 0, 20.0, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Change Password',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(53.0, 0, 0.0, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Icon(Icons.arrow_forward),
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(20.0)),
-                        child: InkWell(
-                          onTap: () {
-                            _signOutDialogBuilder(context);
-                          },
-                          child: Row(
-                            children: const [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(15.0, 0, 8.0, 0),
-                                child: Icon(
-                                  Icons.logout,
-                                  size: 30.0,
-                                  color: Color.fromARGB(255, 4, 44, 76),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(87.0, 0, 38.0, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Sign Out',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(93.0, 0, 0.0, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Icon(Icons.arrow_forward),
-                                ),
-                              )
-                            ],
                           ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      Container(
-                        height: 65.0,
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Color.fromARGB(255, 223, 220, 220),
+                          SizedBox(
+                            height: 30.0,
+                          ),
+                          Container(
+                            height: 65.0,
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Color.fromARGB(255, 223, 220, 220),
+                                ),
+                                borderRadius: BorderRadius.circular(20.0)),
+                            child: InkWell(
+                              onTap: () {
+                                _signOutDialogBuilder(context);
+                              },
+                              child: Row(
+                                children: const [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        15.0, 0, 8.0, 0),
+                                    child: Icon(
+                                      Icons.logout,
+                                      size: 30.0,
+                                      color: Color.fromARGB(255, 4, 44, 76),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(87.0, 0, 38.0, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Sign Out',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(93.0, 0, 0.0, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Icon(Icons.arrow_forward),
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(20.0)),
-                        child: InkWell(
-                          onTap: () {
-                            _ResetAmountDialogBuilder(context);
-                          },
-                          child: Row(
-                            children: const [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(15.0, 0, 8.0, 0),
-                                child: Icon(
-                                  Icons.money,
-                                  size: 30.0,
-                                  color: Color.fromARGB(255, 4, 44, 76),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(70.0, 0, 38.0, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    'Reset Amount',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(60, 0, 0.0, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Icon(Icons.arrow_forward),
-                                ),
-                              )
-                            ],
                           ),
-                        ),
-                      )
-                    ],
-                  ),
-                )
+                          SizedBox(
+                            height: 30.0,
+                          ),
+                          Container(
+                            height: 65.0,
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Color.fromARGB(255, 223, 220, 220),
+                                ),
+                                borderRadius: BorderRadius.circular(20.0)),
+                            child: InkWell(
+                              onTap: () {
+                                _ResetAmountDialogBuilder(context);
+                              },
+                              child: Row(
+                                children: const [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        15.0, 0, 8.0, 0),
+                                    child: Icon(
+                                      Icons.money,
+                                      size: 30.0,
+                                      color: Color.fromARGB(255, 4, 44, 76),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(70.0, 0, 38.0, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Reset Amount',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(60, 0, 0.0, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Icon(Icons.arrow_forward),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                )),
               ],
-            )),
+            ),
           ),
         ),
         if (_loading)

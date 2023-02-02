@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "/Users/mac/Desktop/flutter projects/proj_1/build/flutter_plugin_android_lifecycle/intermediates/res/merged/debug/drawable/notification_bg.xml",
+        "source": "/Users/mac/.gradle/caches/transforms-2/files-2.1/875654acb8fd75501dc33efa1bebb479/core-1.6.0/res/drawable/notification_bg.xml"
+    },
+    {
+        "merged": "/Users/mac/Desktop/flutter projects/proj_1/build/flutter_plugin_android_lifecycle/intermediates/res/merged/debug/drawable/notification_bg_low.xml",
+        "source": "/Users/mac/.gradle/caches/transforms-2/files-2.1/875654acb8fd75501dc33efa1bebb479/core-1.6.0/res/drawable/notification_bg_low.xml"
+    },
+    {
+        "merged": "/Users/mac/Desktop/flutter projects/proj_1/build/flutter_plugin_android_lifecycle/intermediates/res/merged/debug/drawable/notification_tile_bg.xml",
+        "source": "/Users/mac/.gradle/caches/transforms-2/files-2.1/875654acb8fd75501dc33efa1bebb479/core-1.6.0/res/drawable/notification_tile_bg.xml"
+    },
+    {
+        "merged": "/Users/mac/Desktop/flutter projects/proj_1/build/flutter_plugin_android_lifecycle/intermediates/res/merged/debug/drawable/notification_icon_background.xml",
+        "source": "/Users/mac/.gradle/caches/transforms-2/files-2.1/875654acb8fd75501dc33efa1bebb479/core-1.6.0/res/drawable/notification_icon_background.xml"
+    }
+]

@@ -19,6 +19,7 @@ class AddBudget extends StatefulWidget {
 
 class _AddBudgetState extends State<AddBudget> {
   final _formKey = GlobalKey<FormState>();
+  final _messangerKey = GlobalKey<ScaffoldMessengerState>();
   final _budgetTitleController = TextEditingController();
   final _budgetAmtController = TextEditingController();
   final _startDateController = TextEditingController();
@@ -115,268 +116,174 @@ class _AddBudgetState extends State<AddBudget> {
     } else {
       Navigator.pushReplacementNamed(context, '/');
     }
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            leading: const BackButton(color: Color.fromARGB(255, 4, 44, 76)),
+    return MaterialApp(
+      scaffoldMessengerKey: _messangerKey,
+      theme: ThemeData().copyWith(
+        scaffoldBackgroundColor: Colors.white,
+        colorScheme: ThemeData()
+            .colorScheme
+            .copyWith(primary: Color.fromARGB(255, 44, 79, 106)),
+      ),
+      home: Stack(
+        children: [
+          Scaffold(
             backgroundColor: Colors.white,
-            title: Text(
-              buttonName,
-              style: TextStyle(
-                  letterSpacing: 0.6,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 4, 44, 76)),
+            appBar: AppBar(
+              leading: BackButton(
+                color: Color.fromARGB(255, 4, 44, 76),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              backgroundColor: Colors.white,
+              title: Text(
+                buttonName,
+                style: TextStyle(
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 4, 44, 76)),
+              ),
+              centerTitle: true,
+              elevation: 0,
             ),
-            centerTitle: true,
-            elevation: 0,
-          ),
-          body: SafeArea(
-              child: ListView(
-            padding: const EdgeInsets.all(25.0),
-            children: [
-              Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      const SizedBox(
-                        height: 20.0,
-                      ),
-                      const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Budget Title',
-                          style: TextStyle(
-                              fontFamily: 'OpenSans',
-                              letterSpacing: 0.6,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w600,
-                              color: Color.fromARGB(255, 67, 65, 65)),
+            body: SafeArea(
+                child: ListView(
+              padding: const EdgeInsets.all(25.0),
+              children: [
+                Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        const SizedBox(
+                          height: 20.0,
                         ),
-                      ),
-                      const SizedBox(
-                        height: 5.0,
-                      ),
-                      TextFormField(
-                        controller: _budgetTitleController,
-                        enabled: isEditing,
-                        maxLength: 25,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.allow(
-                              RegExp("[a-zA-Z ]")),
-                          LengthLimitingTextInputFormatter(100),
-                        ],
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: 'Food & Drinks',
-                        ),
-                        keyboardType: TextInputType.text,
-                        textCapitalization: TextCapitalization.sentences,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        onFieldSubmitted: (value) {},
-                        validator: (value) {
-                          if (value!.trim().isEmpty) {
-                            return 'Title is required';
-                          } else if (value.startsWith(RegExp(r'[0-9]'))) {
-                            return 'Title name is not valid';
-                          }
-                        },
-                      ),
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Total Budget Amount',
-                          style: TextStyle(
-                              fontFamily: 'OpenSans',
-                              letterSpacing: 0.6,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w600,
-                              color: Color.fromARGB(255, 67, 65, 65)),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 5.0,
-                      ),
-                      TextFormField(
-                        controller: _budgetAmtController,
-                        inputFormatters: [
-                          CurrencyTextInputFormatter(
-                            locale: 'en_NG',
-                            decimalDigits: 0,
-                            symbol: '₦',
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Budget Title',
+                            style: TextStyle(
+                                fontFamily: 'OpenSans',
+                                letterSpacing: 0.6,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w600,
+                                color: Color.fromARGB(255, 67, 65, 65)),
                           ),
-                          LengthLimitingTextInputFormatter(21),
-                        ],
-                        onChanged: (text) {
-                          if (_startDateController.text.isNotEmpty &&
-                              _endDateController.text.isNotEmpty) {
-                            var noOfDays =
-                                service.daysBetween(startDate, endDate);
-                            if (noOfDays == 0) {
-                              calculateDailyWeeklyLimit(1, text);
-                              return;
+                        ),
+                        const SizedBox(
+                          height: 5.0,
+                        ),
+                        TextFormField(
+                          controller: _budgetTitleController,
+                          enabled: isEditing,
+                          maxLength: 25,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                                RegExp("[a-zA-Z ]")),
+                            LengthLimitingTextInputFormatter(100),
+                          ],
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'Food & Drinks',
+                          ),
+                          keyboardType: TextInputType.text,
+                          textCapitalization: TextCapitalization.sentences,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          onFieldSubmitted: (value) {},
+                          validator: (value) {
+                            if (value!.trim().isEmpty) {
+                              return 'Title is required';
+                            } else if (value.startsWith(RegExp(r'[0-9]'))) {
+                              return 'Title name is not valid';
                             }
-                            calculateDailyWeeklyLimit(noOfDays, text);
-                          }
-                        },
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: '12,000.00',
+                          },
                         ),
-                        keyboardType: TextInputType.number,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        onFieldSubmitted: (value) {},
-                        validator: (value) {
-                          if (value!.trim().isEmpty) {
-                            return 'Total amount is required';
-                          }
-                        },
-                      ),
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              children: [
-                                const Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Start Date',
-                                    style: TextStyle(
-                                        fontFamily: 'OpenSans',
-                                        letterSpacing: 0.6,
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color.fromARGB(255, 67, 65, 65)),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 5.0,
-                                ),
-                                TextFormField(
-                                  controller: _startDateController,
-                                  decoration: const InputDecoration(
-                                    suffixIcon: Icon(Icons.calendar_today),
-                                    border: OutlineInputBorder(),
-                                    hintText: 'DD/MM/YYYY',
-                                  ),
-                                  keyboardType: TextInputType.datetime,
-                                  readOnly: true,
-                                  onTap: () {
-                                    showModalBottomSheet(
-                                        context: context,
-                                        builder: (BuildContext builder) {
-                                          return Container(
-                                              height: MediaQuery.of(context)
-                                                      .copyWith()
-                                                      .size
-                                                      .height /
-                                                  3,
-                                              child: CupertinoDatePicker(
-                                                minimumDate: DateTime.now(),
-                                                initialDateTime: DateTime.now(),
-                                                onDateTimeChanged:
-                                                    (DateTime newdate) {
-                                                  var inputFormat =
-                                                      DateFormat('dd/MM/yyyy');
-
-                                                  startDate = newdate;
-                                                  minimumEndDate = newdate
-                                                      .add(Duration(days: 1));
-                                                  String startDateText =
-                                                      inputFormat
-                                                          .format(newdate);
-
-                                                  _startDateController.value =
-                                                      TextEditingValue(
-                                                    text: startDateText,
-                                                    selection: TextSelection
-                                                        .fromPosition(
-                                                      TextPosition(
-                                                          offset: startDateText
-                                                              .toString()
-                                                              .length),
-                                                    ),
-                                                  );
-
-                                                  if (_budgetAmtController.text.isNotEmpty &&
-                                                      _startDateController
-                                                          .text.isNotEmpty &&
-                                                      _endDateController
-                                                          .text.isNotEmpty) {
-                                                    var noOfDays =
-                                                        service.daysBetween(
-                                                            startDate, endDate);
-                                                    if (noOfDays == 0) {
-                                                      calculateDailyWeeklyLimit(
-                                                          1,
-                                                          _budgetAmtController
-                                                              .text);
-                                                      return;
-                                                    }
-                                                    calculateDailyWeeklyLimit(
-                                                        noOfDays,
-                                                        _budgetAmtController
-                                                            .text);
-                                                  }
-                                                },
-                                                mode: CupertinoDatePickerMode
-                                                    .date,
-                                              ));
-                                        });
-                                  },
-                                  autovalidateMode:
-                                      AutovalidateMode.onUserInteraction,
-                                  onFieldSubmitted: (value) {},
-                                  validator: (value) {
-                                    if (value!.trim().isEmpty) {
-                                      return 'Start date is required';
-                                    }
-                                  },
-                                )
-                              ],
+                        SizedBox(
+                          height: 30.0,
+                        ),
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Total Budget Amount',
+                            style: TextStyle(
+                                fontFamily: 'OpenSans',
+                                letterSpacing: 0.6,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w600,
+                                color: Color.fromARGB(255, 67, 65, 65)),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5.0,
+                        ),
+                        TextFormField(
+                          controller: _budgetAmtController,
+                          inputFormatters: [
+                            CurrencyTextInputFormatter(
+                              locale: 'en_NG',
+                              decimalDigits: 0,
+                              symbol: '₦',
                             ),
+                            LengthLimitingTextInputFormatter(21),
+                          ],
+                          onChanged: (text) {
+                            if (_startDateController.text.isNotEmpty &&
+                                _endDateController.text.isNotEmpty) {
+                              var noOfDays =
+                                  service.daysBetween(startDate, endDate);
+                              if (noOfDays == 0) {
+                                calculateDailyWeeklyLimit(1, text);
+                                return;
+                              }
+                              calculateDailyWeeklyLimit(noOfDays, text);
+                            }
+                          },
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: '12,000.00',
                           ),
-                          const SizedBox(
-                            width: 15,
-                          ),
-                          Expanded(
-                            child: Column(
-                              children: [
-                                const Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'End Date',
-                                    style: TextStyle(
-                                        fontFamily: 'OpenSans',
-                                        letterSpacing: 0.6,
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color.fromARGB(255, 67, 65, 65)),
+                          keyboardType: TextInputType.number,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          onFieldSubmitted: (value) {},
+                          validator: (value) {
+                            if (value!.trim().isEmpty) {
+                              return 'Total amount is required';
+                            }
+                          },
+                        ),
+                        SizedBox(
+                          height: 30.0,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  const Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Start Date',
+                                      style: TextStyle(
+                                          fontFamily: 'OpenSans',
+                                          letterSpacing: 0.6,
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.w600,
+                                          color:
+                                              Color.fromARGB(255, 67, 65, 65)),
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(
-                                  height: 5.0,
-                                ),
-                                TextFormField(
-                                  controller: _endDateController,
-                                  decoration: const InputDecoration(
-                                    suffixIcon: Icon(Icons.calendar_today),
-                                    border: OutlineInputBorder(),
-                                    hintText: 'DD/MM/YYYY',
+                                  const SizedBox(
+                                    height: 5.0,
                                   ),
-                                  keyboardType: TextInputType.datetime,
-                                  readOnly: true,
-                                  onTap: () {
-                                    if (_startDateController.text
-                                        .toString()
-                                        .isNotEmpty) {
+                                  TextFormField(
+                                    controller: _startDateController,
+                                    decoration: const InputDecoration(
+                                      suffixIcon: Icon(Icons.calendar_today),
+                                      border: OutlineInputBorder(),
+                                      hintText: 'DD/MM/YYYY',
+                                    ),
+                                    keyboardType: TextInputType.datetime,
+                                    readOnly: true,
+                                    onTap: () {
                                       showModalBottomSheet(
                                           context: context,
                                           builder: (BuildContext builder) {
@@ -387,28 +294,32 @@ class _AddBudgetState extends State<AddBudget> {
                                                         .height /
                                                     3,
                                                 child: CupertinoDatePicker(
-                                                  minimumDate: minimumEndDate,
+                                                  minimumDate: DateTime.now(),
                                                   initialDateTime:
-                                                      minimumEndDate,
+                                                      DateTime.now(),
                                                   onDateTimeChanged:
                                                       (DateTime newdate) {
                                                     var inputFormat =
                                                         DateFormat(
                                                             'dd/MM/yyyy');
-                                                    endDate = newdate;
-                                                    String endDateText =
+
+                                                    startDate = newdate;
+                                                    minimumEndDate = newdate
+                                                        .add(Duration(days: 1));
+                                                    String startDateText =
                                                         inputFormat
                                                             .format(newdate);
 
-                                                    _endDateController.value =
+                                                    _startDateController.value =
                                                         TextEditingValue(
-                                                      text: endDateText,
+                                                      text: startDateText,
                                                       selection: TextSelection
                                                           .fromPosition(
                                                         TextPosition(
-                                                            offset: endDateText
-                                                                .toString()
-                                                                .length),
+                                                            offset:
+                                                                startDateText
+                                                                    .toString()
+                                                                    .length),
                                                       ),
                                                     );
 
@@ -438,156 +349,270 @@ class _AddBudgetState extends State<AddBudget> {
                                                       .date,
                                                 ));
                                           });
-                                    } else {
-                                      error('Select Start Date');
-                                    }
-                                  },
-                                  autovalidateMode:
-                                      AutovalidateMode.onUserInteraction,
-                                  onFieldSubmitted: (value) {},
-                                  validator: (value) {
-                                    if (value!.trim().isEmpty) {
-                                      return 'End date is required';
-                                    }
-                                  },
-                                )
-                              ],
+                                    },
+                                    autovalidateMode:
+                                        AutovalidateMode.onUserInteraction,
+                                    onFieldSubmitted: (value) {},
+                                    validator: (value) {
+                                      if (value!.trim().isEmpty) {
+                                        return 'Start date is required';
+                                      }
+                                    },
+                                  )
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Daily Limit',
-                          style: TextStyle(
-                              fontFamily: 'OpenSans',
-                              letterSpacing: 0.6,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w600,
-                              color: Color.fromARGB(255, 67, 65, 65)),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 5.0,
-                      ),
-                      TextFormField(
-                        enabled: false,
-                        controller: _dailyLimitController,
-                        decoration: const InputDecoration(
-                          prefixText: "₦",
-                          prefixStyle:
-                              TextStyle(color: Colors.black, fontSize: 17.0),
-                          border: OutlineInputBorder(),
-                        ),
-                        keyboardType: TextInputType.number,
-                        textCapitalization: TextCapitalization.sentences,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        onFieldSubmitted: (value) {},
-                        validator: (value) {
-                          if (value!.trim().isEmpty) {
-                            return 'Daily limit is required';
-                          }
-                        },
-                      ),
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Weekly Limit',
-                          style: TextStyle(
-                              fontFamily: 'OpenSans',
-                              letterSpacing: 0.6,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w600,
-                              color: Color.fromARGB(255, 67, 65, 65)),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 5.0,
-                      ),
-                      TextFormField(
-                        enabled: false,
-                        controller: _weeklyLimitController,
-                        decoration: const InputDecoration(
-                          prefixText: "₦",
-                          prefixStyle:
-                              TextStyle(color: Colors.black, fontSize: 17.0),
-                          border: OutlineInputBorder(),
-                        ),
-                        keyboardType: TextInputType.number,
-                        textCapitalization: TextCapitalization.sentences,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        onFieldSubmitted: (value) {},
-                        validator: (value) {
-                          if (value!.trim().isEmpty) {
-                            return 'Weekly limit is required';
-                          }
-                        },
-                      ),
-                      const SizedBox(
-                        height: 60.0,
-                      ),
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              primary: const Color.fromARGB(255, 4, 44, 76),
-                              minimumSize: const Size.fromHeight(50),
-                              textStyle: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontFamily: 'OpenSans',
-                                  fontWeight: FontWeight.bold)),
-                          onPressed: !_loading
-                              ? () {
-                                  if (_formKey.currentState!.validate()) {
-                                    setState(() {
-                                      _loading = true;
-                                    });
-                                    String name =
-                                        _budgetTitleController.text.toString();
-                                    String amount = _budgetAmtController.text
-                                        .toString()
-                                        .replaceAll(',', '')
-                                        .replaceAll('₦', '');
+                            const SizedBox(
+                              width: 15,
+                            ),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  const Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'End Date',
+                                      style: TextStyle(
+                                          fontFamily: 'OpenSans',
+                                          letterSpacing: 0.6,
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.w600,
+                                          color:
+                                              Color.fromARGB(255, 67, 65, 65)),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 5.0,
+                                  ),
+                                  TextFormField(
+                                    controller: _endDateController,
+                                    decoration: const InputDecoration(
+                                      suffixIcon: Icon(Icons.calendar_today),
+                                      border: OutlineInputBorder(),
+                                      hintText: 'DD/MM/YYYY',
+                                    ),
+                                    keyboardType: TextInputType.datetime,
+                                    readOnly: true,
+                                    onTap: () {
+                                      if (_startDateController.text
+                                          .toString()
+                                          .isNotEmpty) {
+                                        showModalBottomSheet(
+                                            context: context,
+                                            builder: (BuildContext builder) {
+                                              return Container(
+                                                  height: MediaQuery.of(context)
+                                                          .copyWith()
+                                                          .size
+                                                          .height /
+                                                      3,
+                                                  child: CupertinoDatePicker(
+                                                    minimumDate: minimumEndDate,
+                                                    initialDateTime:
+                                                        minimumEndDate,
+                                                    onDateTimeChanged:
+                                                        (DateTime newdate) {
+                                                      var inputFormat =
+                                                          DateFormat(
+                                                              'dd/MM/yyyy');
+                                                      endDate = newdate;
+                                                      String endDateText =
+                                                          inputFormat
+                                                              .format(newdate);
 
-                                    String dailyAmt = _dailyLimitController.text
-                                        .toString()
-                                        .replaceAll(',', '')
-                                        .replaceAll('₦', '');
-                                    String weeklyAmt = _weeklyLimitController
-                                        .text
-                                        .toString()
-                                        .replaceAll(',', '')
-                                        .replaceAll('₦', '');
-                                    storeValueInDb(
-                                        name.trim(),
-                                        amount.trim(),
-                                        startDate.toString(),
-                                        endDate.toString(),
-                                        dailyAmt,
-                                        weeklyAmt);
+                                                      _endDateController.value =
+                                                          TextEditingValue(
+                                                        text: endDateText,
+                                                        selection: TextSelection
+                                                            .fromPosition(
+                                                          TextPosition(
+                                                              offset: endDateText
+                                                                  .toString()
+                                                                  .length),
+                                                        ),
+                                                      );
+
+                                                      if (_budgetAmtController.text.isNotEmpty &&
+                                                          _startDateController
+                                                              .text
+                                                              .isNotEmpty &&
+                                                          _endDateController
+                                                              .text
+                                                              .isNotEmpty) {
+                                                        var noOfDays =
+                                                            service.daysBetween(
+                                                                startDate,
+                                                                endDate);
+                                                        if (noOfDays == 0) {
+                                                          calculateDailyWeeklyLimit(
+                                                              1,
+                                                              _budgetAmtController
+                                                                  .text);
+                                                          return;
+                                                        }
+                                                        calculateDailyWeeklyLimit(
+                                                            noOfDays,
+                                                            _budgetAmtController
+                                                                .text);
+                                                      }
+                                                    },
+                                                    mode:
+                                                        CupertinoDatePickerMode
+                                                            .date,
+                                                  ));
+                                            });
+                                      } else {
+                                        error('Select Start Date');
+                                      }
+                                    },
+                                    autovalidateMode:
+                                        AutovalidateMode.onUserInteraction,
+                                    onFieldSubmitted: (value) {},
+                                    validator: (value) {
+                                      if (value!.trim().isEmpty) {
+                                        return 'End date is required';
+                                      }
+                                    },
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 30.0,
+                        ),
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Daily Limit',
+                            style: TextStyle(
+                                fontFamily: 'OpenSans',
+                                letterSpacing: 0.6,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w600,
+                                color: Color.fromARGB(255, 67, 65, 65)),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5.0,
+                        ),
+                        TextFormField(
+                          enabled: false,
+                          controller: _dailyLimitController,
+                          decoration: const InputDecoration(
+                            prefixText: "₦",
+                            prefixStyle:
+                                TextStyle(color: Colors.black, fontSize: 17.0),
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.number,
+                          textCapitalization: TextCapitalization.sentences,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          onFieldSubmitted: (value) {},
+                          validator: (value) {
+                            if (value!.trim().isEmpty) {
+                              return 'Daily limit is required';
+                            }
+                          },
+                        ),
+                        SizedBox(
+                          height: 30.0,
+                        ),
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Weekly Limit',
+                            style: TextStyle(
+                                fontFamily: 'OpenSans',
+                                letterSpacing: 0.6,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w600,
+                                color: Color.fromARGB(255, 67, 65, 65)),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5.0,
+                        ),
+                        TextFormField(
+                          enabled: false,
+                          controller: _weeklyLimitController,
+                          decoration: const InputDecoration(
+                            prefixText: "₦",
+                            prefixStyle:
+                                TextStyle(color: Colors.black, fontSize: 17.0),
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.number,
+                          textCapitalization: TextCapitalization.sentences,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          onFieldSubmitted: (value) {},
+                          validator: (value) {
+                            if (value!.trim().isEmpty) {
+                              return 'Weekly limit is required';
+                            }
+                          },
+                        ),
+                        const SizedBox(
+                          height: 60.0,
+                        ),
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                primary: const Color.fromARGB(255, 4, 44, 76),
+                                minimumSize: const Size.fromHeight(50),
+                                textStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontFamily: 'OpenSans',
+                                    fontWeight: FontWeight.bold)),
+                            onPressed: !_loading
+                                ? () {
+                                    if (_formKey.currentState!.validate()) {
+                                      setState(() {
+                                        _loading = true;
+                                      });
+                                      String name = _budgetTitleController.text
+                                          .toString();
+                                      String amount = _budgetAmtController.text
+                                          .toString()
+                                          .replaceAll(',', '')
+                                          .replaceAll('₦', '');
+
+                                      String dailyAmt = _dailyLimitController
+                                          .text
+                                          .toString()
+                                          .replaceAll(',', '')
+                                          .replaceAll('₦', '');
+                                      String weeklyAmt = _weeklyLimitController
+                                          .text
+                                          .toString()
+                                          .replaceAll(',', '')
+                                          .replaceAll('₦', '');
+                                      storeValueInDb(
+                                          name.trim(),
+                                          amount.trim(),
+                                          startDate.toString(),
+                                          endDate.toString(),
+                                          dailyAmt,
+                                          weeklyAmt);
+                                    }
                                   }
-                                }
-                              : null,
-                          child: Text(buttonName))
-                    ],
-                  ))
-            ],
-          )),
-        ),
-        if (_loading)
-          Center(
-            child: SpinKitSquareCircle(
-              color: Colors.blue[500],
-              size: 100.0,
-            ),
+                                : null,
+                            child: Text(buttonName))
+                      ],
+                    ))
+              ],
+            )),
           ),
-      ],
+          if (_loading)
+            Center(
+              child: SpinKitSquareCircle(
+                color: Colors.blue[500],
+                size: 100.0,
+              ),
+            ),
+        ],
+      ),
     );
   }
 
