@@ -12,6 +12,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:proj_1/signin.dart';
 
+import 'custom_alert_dialog.dart';
+
 class UserPage extends StatefulWidget {
   const UserPage({Key? key}) : super(key: key);
 
@@ -748,6 +750,54 @@ class _UserPageState extends State<UserPage> {
                             ],
                           ),
                         ),
+                      ),
+                      SizedBox(
+                        height: 30.0,
+                      ),
+                      Container(
+                        height: 65.0,
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Color.fromARGB(255, 223, 220, 220),
+                            ),
+                            borderRadius: BorderRadius.circular(20.0)),
+                        child: InkWell(
+                          onTap: () {
+                            _ResetAmountDialogBuilder(context);
+                          },
+                          child: Row(
+                            children: const [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(15.0, 0, 8.0, 0),
+                                child: Icon(
+                                  Icons.money,
+                                  size: 30.0,
+                                  color: Color.fromARGB(255, 4, 44, 76),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(70.0, 0, 38.0, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'Reset Amount',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(60, 0, 0.0, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Icon(Icons.arrow_forward),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
                       )
                     ],
                   ),
@@ -926,6 +976,98 @@ class _UserPageState extends State<UserPage> {
                 ),
                 SizedBox(
                   height: 40.0,
+                )
+              ],
+            ),
+          );
+        });
+  }
+
+  Future<void> _ResetAmountDialogBuilder(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          barrierColor:
+          Colors.black26;
+          return Dialog(
+            elevation: 0,
+            backgroundColor: Color(0xffffffff),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 20.0,
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(50.0, 20, 50.0, 20),
+                  child: Center(
+                    child: const Text(
+                      'are you sure you want to reset amount ? ',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 18.0, fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 60.0,
+                    ),
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            elevation: 5.0,
+                            primary: Color.fromARGB(255, 183, 181, 181),
+                            minimumSize: const Size(100, 50),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0))),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('No', style: TextStyle(fontSize: 17.0))),
+                    SizedBox(
+                      width: 20.0,
+                    ),
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            elevation: 5.0,
+                            primary: Color.fromARGB(255, 4, 44, 76),
+                            minimumSize: const Size(100, 50),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0))),
+                        onPressed: () {
+                          Navigator.pop(context);
+
+                          _resetAmount();
+                        },
+                        child: Text(
+                          'Yes',
+                          style: TextStyle(fontSize: 17.0),
+                        )),
+                  ],
+                ),
+                SizedBox(
+                  height: 40.0,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'NOTE: YOU ARE ONLY ALLOWED 3 RESETS PER DAY ',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 13.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red[900]),
+                  ),
+                ),
+                SizedBox(
+                  height: 10.0,
                 )
               ],
             ),
@@ -1117,6 +1259,58 @@ class _UserPageState extends State<UserPage> {
     } else {
       print("user Id ${user!.uid}");
     }
+  }
+
+  Future<void> _resetAmount() async {
+    final User? user = auth.currentUser;
+    int data = 0;
+
+    setState(() {
+      _loading = true;
+    });
+
+    await FirebaseFirestore.instance
+        .collection("users")
+        .where('userId', isEqualTo: user!.uid)
+        .limit(1)
+        .get()
+        .then((value) => value.docs.forEach((doc) {
+              data = doc.data()['amountReset'];
+            }));
+
+    if (data <= 3) {
+      await FirebaseFirestore.instance
+          .collection("users")
+          .where('userId', isEqualTo: user.uid)
+          .limit(1)
+          .get()
+          .then((value) => value.docs.forEach((doc) {
+                doc.reference.update({
+                  'amountReset': data + 1,
+                  'lastResetTime': DateTime.now()
+                }).then((value) {}, onError: (e) {
+                  errorDialog(e.toString(), true);
+                });
+              }));
+
+      await FirebaseFirestore.instance
+          .collection("users")
+          .where('userId', isEqualTo: user.uid)
+          .limit(1)
+          .get()
+          .then((value) => value.docs.forEach((doc) {
+                doc.reference.update({'amount': '0'}).then((value) {
+                  errorDialog('RESET $data OUT OF 3 SUCCESSFUL', true);
+                }, onError: (e) {
+                  errorDialog(e.toString(), true);
+                });
+              }));
+    } else {
+      errorDialog('RESET LIMIT EXCEEDED, TRY AGAIN IN THE NEXT 24 HOURS', true);
+    }
+    setState(() {
+      _loading = false;
+    });
   }
 
   void errorDialog(errorMessage, isError) {

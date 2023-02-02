@@ -31,11 +31,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   bool _loading = false;
   ScrollController? _controller;
   var userEmail;
-  String totalAmt = '₦ 0.0';
-  String budgetAmt = '₦ 0.0';
-  String dailyAmt = '₦ 0.0';
-  String weeklyAmt = '₦ 0.0';
-  String amtSpent = '₦ 0.0';
+  String totalAmt = '₦ 0.0',
+      budgetAmt = '₦ 0.0',
+      dailyAmt = '₦ 0.0',
+      weeklyAmt = '₦ 0.0',
+      amtSpent = '₦ 0.0',
+      totalAmountSpentFormatted = '₦ 0.0';
   int _index = 0;
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
@@ -213,19 +214,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                                 color: Colors.white)),
                                       ),
                                       const SizedBox(
-                                        height: 7.0,
-                                      ),
-                                      const Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                            'Out of 40,000,000 budget for this month',
-                                            style: TextStyle(
-                                                letterSpacing: 0.5,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w200,
-                                                color: Colors.white)),
-                                      ),
-                                      const SizedBox(
                                         height: 45.0,
                                       ),
                                       Align(
@@ -343,6 +331,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                                                             .trim()
                                                                             .isEmpty) {
                                                                           return 'Amount is required';
+                                                                        } else if (value.replaceAll('₦',
+                                                                                '') ==
+                                                                            '0') {
+                                                                          return 'Amount can not be 0';
                                                                         }
                                                                       },
                                                                     ),
@@ -463,6 +455,20 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                       ),
                                       const SizedBox(
                                         height: 30.0,
+                                      ),
+                                      Align(
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                            '${DateFormat('yMMMMd').format(DateTime.now())}',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                                letterSpacing: 0.5,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.white)),
+                                      ),
+                                      const SizedBox(
+                                        height: 5.0,
                                       )
                                     ],
                                   ),
@@ -494,7 +500,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       ),
                       SizedBox(
                         width: 500,
-                        height: 450,
+                        height: 500,
                         child: TabBarView(
                           controller: tabController,
                           children: [
@@ -533,7 +539,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                 child: Container(
                                   margin:
                                       const EdgeInsets.symmetric(vertical: 8.0),
-                                  height: 350.0,
+                                  height: 400.0,
                                   child: FutureBuilder(
                                       future: budgetsList,
                                       builder: (BuildContext context,
@@ -854,9 +860,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               children: [
                 Container(
                   decoration: const BoxDecoration(
-                      color: const Color.fromARGB(255, 35, 63, 105),
-                      borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(15.0))),
+                      color: Color.fromARGB(255, 35, 63, 105),
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(15.0))),
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20.0, 15.0, 10.0, 20.0),
                     child: Column(
@@ -926,11 +932,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       height: 15.0,
                     ),
                     Text(
-                      '${amountSpent} Spent from ${budgetAmt}',
+                      '${amtSpent} Spent from ${budgetAmt}',
+                      textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 18.0,
-                        letterSpacing: 0.5,
+                        letterSpacing: 0.3,
                       ),
                     ),
                     const SizedBox(
@@ -1145,6 +1152,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         }
       }));
     }
+
+    service.checkResetTime();
 
     setState(() {
       _loading = false;

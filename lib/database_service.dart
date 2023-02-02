@@ -96,6 +96,30 @@ class DatabaseService {
     });
   }
 
+  Future<void> checkResetTime() async {
+    await FirebaseFirestore.instance
+        .collection("users")
+        .where('userId', isEqualTo: user!.uid)
+        .limit(1)
+        .get()
+        .then((value) => value.docs.forEach((doc) {
+              final data = doc.data()['lastResetTime'].toDate();
+              if (daysBetween(data, DateTime.now()) >= 1) {
+                FirebaseFirestore.instance
+                    .collection("users")
+                    .where('userId', isEqualTo: user!.uid)
+                    .limit(1)
+                    .get()
+                    .then((value) => value.docs.forEach((doc) {
+                          doc.reference.update({
+                            'amountReset': 0,
+                            'lastResetTime': DateTime.now()
+                          });
+                        }));
+              }
+            }));
+  }
+
   int daysBetween(DateTime from, DateTime to) {
     from = DateTime(from.year, from.month, from.day);
     to = DateTime(to.year, to.month, to.day);
