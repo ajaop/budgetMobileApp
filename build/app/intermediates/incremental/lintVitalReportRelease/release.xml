@@ -1,0 +1,38 @@
+<variant
+    name="release"
+    package="com.example.proj_1"
+    minSdkVersion="19"
+    targetSdkVersion="31"
+    shrinking="true"
+    mergedManifest="/Users/mac/Desktop/flutter projects/proj_1/build/app/intermediates/merged_manifest/release/AndroidManifest.xml"
+    manifestMergeReport="/Users/mac/Desktop/flutter projects/proj_1/build/app/outputs/logs/manifest-merger-release-report.txt"
+    proguardFiles="/Users/mac/Desktop/flutter projects/proj_1/build/app/intermediates/default_proguard_files/global/proguard-android.txt-7.1.2:/users/mac/desktop/flutter-development/flutter/packages/flutter_tools/gradle/flutter_proguard_rules.pro:proguard-rules.pro"
+    partialResultsDir="/Users/mac/Desktop/flutter projects/proj_1/build/app/intermediates/lint_vital_partial_results/release/out">
+  <buildFeatures
+      namespacing="REQUIRED"/>
+  <sourceProviders>
+    <sourceProvider
+        manifest="src/main/AndroidManifest.xml"
+        javaDirectories="src/main/java:src/main/kotlin"
+        resDirectories="src/main/res"
+        assetsDirectories="src/main/assets"/>
+    <sourceProvider
+        manifest="src/release/AndroidManifest.xml"
+        javaDirectories="src/release/java:src/release/kotlin"
+        resDirectories="src/release/res"
+        assetsDirectories="src/release/assets"/>
+  </sourceProviders>
+  <testSourceProviders>
+  </testSourceProviders>
+  <manifestPlaceholders>
+    <placeholder
+        name="applicationName"
+        value="android.app.Application" />
+  </manifestPlaceholders>
+  <mainArtifact
+      classOutputs="/Users/mac/Desktop/flutter projects/proj_1/build/app/intermediates/javac/release/classes:/Users/mac/Desktop/flutter projects/proj_1/build/app/tmp/kotlin-classes/release:/Users/mac/Desktop/flutter projects/proj_1/build/app/kotlinToolingMetadata:/Users/mac/Desktop/flutter projects/proj_1/build/app/intermediates/compile_and_runtime_not_namespaced_r_class_jar/release/R.jar"
+      applicationId="com.example.proj_1"
+      generatedSourceFolders="/Users/mac/Desktop/flutter projects/proj_1/build/app/generated/ap_generated_sources/release/out:/Users/mac/Desktop/flutter projects/proj_1/build/app/generated/aidl_source_output_dir/release/out:/Users/mac/Desktop/flutter projects/proj_1/build/app/generated/source/buildConfig/release:/Users/mac/Desktop/flutter projects/proj_1/build/app/generated/renderscript_source_output_dir/release/out"
+      generatedResourceFolders="/Users/mac/Desktop/flutter projects/proj_1/build/app/generated/res/google-services/release:/Users/mac/Desktop/flutter projects/proj_1/build/app/generated/res/rs/release:/Users/mac/Desktop/flutter projects/proj_1/build/app/generated/res/resValues/release">
+  </mainArtifact>
+</variant>

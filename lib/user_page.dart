@@ -12,8 +12,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:proj_1/signin.dart';
 
-import 'custom_alert_dialog.dart';
-
 class UserPage extends StatefulWidget {
   const UserPage({Key? key}) : super(key: key);
 
@@ -235,217 +233,206 @@ class _UserPageState extends State<UserPage> {
                                                             25.0),
                                                     child: Form(
                                                         key: _formKey,
-                                                        child: Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              Text(
-                                                                'Account Information',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        20.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w700),
-                                                              ),
-                                                              SizedBox(
-                                                                height: 40.0,
-                                                              ),
-                                                              const Align(
-                                                                alignment: Alignment
-                                                                    .centerLeft,
-                                                                child: Text(
-                                                                  'First Name',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontFamily:
-                                                                        'OpenSans',
-                                                                    letterSpacing:
-                                                                        0.6,
-                                                                    fontSize:
-                                                                        16.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600,
+                                                        child: ListView(
+                                                          shrinkWrap: true,
+                                                          children: [
+                                                            Column(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min,
+                                                                children: [
+                                                                  Text(
+                                                                    'Account Information',
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            20.0,
+                                                                        fontWeight:
+                                                                            FontWeight.w700),
                                                                   ),
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 5.0,
-                                                              ),
-                                                              Theme(
-                                                                data: Theme.of(
-                                                                        context)
-                                                                    .copyWith(
-                                                                  colorScheme: ThemeData()
-                                                                      .colorScheme
-                                                                      .copyWith(
+                                                                  SizedBox(
+                                                                    height:
+                                                                        40.0,
+                                                                  ),
+                                                                  const Align(
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .centerLeft,
+                                                                    child: Text(
+                                                                      'First Name',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontFamily:
+                                                                            'OpenSans',
+                                                                        letterSpacing:
+                                                                            0.6,
+                                                                        fontSize:
+                                                                            16.0,
+                                                                        fontWeight:
+                                                                            FontWeight.w600,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 5.0,
+                                                                  ),
+                                                                  Theme(
+                                                                    data: Theme.of(
+                                                                            context)
+                                                                        .copyWith(
+                                                                      colorScheme: ThemeData().colorScheme.copyWith(
                                                                           primary: Color.fromARGB(
                                                                               255,
                                                                               44,
                                                                               79,
                                                                               106)),
-                                                                ),
-                                                                child:
-                                                                    TextFormField(
-                                                                  enabled:
-                                                                      _editAccount,
-                                                                  controller:
-                                                                      _firstNameController,
-                                                                  inputFormatters: <
-                                                                      TextInputFormatter>[
-                                                                    FilteringTextInputFormatter
-                                                                        .allow(RegExp(
-                                                                            "[a-zA-Z ]")),
-                                                                    LengthLimitingTextInputFormatter(
-                                                                        100),
-                                                                  ],
-                                                                  decoration:
-                                                                      const InputDecoration(
-                                                                    focusedBorder:
-                                                                        OutlineInputBorder(),
-                                                                    prefixIcon:
-                                                                        Icon(Icons
-                                                                            .person_outline),
-                                                                    border:
-                                                                        OutlineInputBorder(),
+                                                                    ),
+                                                                    child:
+                                                                        TextFormField(
+                                                                      enabled:
+                                                                          _editAccount,
+                                                                      controller:
+                                                                          _firstNameController,
+                                                                      inputFormatters: <
+                                                                          TextInputFormatter>[
+                                                                        FilteringTextInputFormatter.allow(
+                                                                            RegExp("[a-zA-Z ]")),
+                                                                        LengthLimitingTextInputFormatter(
+                                                                            100),
+                                                                      ],
+                                                                      decoration:
+                                                                          const InputDecoration(
+                                                                        focusedBorder:
+                                                                            OutlineInputBorder(),
+                                                                        prefixIcon:
+                                                                            Icon(Icons.person_outline),
+                                                                        border:
+                                                                            OutlineInputBorder(),
+                                                                      ),
+                                                                      keyboardType:
+                                                                          TextInputType
+                                                                              .text,
+                                                                      textCapitalization:
+                                                                          TextCapitalization
+                                                                              .sentences,
+                                                                      autovalidateMode:
+                                                                          AutovalidateMode
+                                                                              .onUserInteraction,
+                                                                      onFieldSubmitted:
+                                                                          (value) {},
+                                                                      validator:
+                                                                          (value) {
+                                                                        if (value!
+                                                                            .trim()
+                                                                            .isEmpty) {
+                                                                          return 'First Name is required';
+                                                                        } else if (value
+                                                                            .startsWith(RegExp(r'[0-9]'))) {
+                                                                          return 'First name is not valid';
+                                                                        }
+                                                                      },
+                                                                    ),
                                                                   ),
-                                                                  keyboardType:
-                                                                      TextInputType
-                                                                          .text,
-                                                                  textCapitalization:
-                                                                      TextCapitalization
-                                                                          .sentences,
-                                                                  autovalidateMode:
-                                                                      AutovalidateMode
-                                                                          .onUserInteraction,
-                                                                  onFieldSubmitted:
-                                                                      (value) {},
-                                                                  validator:
-                                                                      (value) {
-                                                                    if (value!
-                                                                        .trim()
-                                                                        .isEmpty) {
-                                                                      return 'First Name is required';
-                                                                    } else if (value
-                                                                        .startsWith(
-                                                                            RegExp(r'[0-9]'))) {
-                                                                      return 'First name is not valid';
-                                                                    }
-                                                                  },
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 30.0,
-                                                              ),
-                                                              const Align(
-                                                                alignment: Alignment
-                                                                    .centerLeft,
-                                                                child: Text(
-                                                                  'Last Name',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontFamily:
-                                                                        'OpenSans',
-                                                                    letterSpacing:
-                                                                        0.6,
-                                                                    fontSize:
-                                                                        16.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600,
+                                                                  const SizedBox(
+                                                                    height:
+                                                                        30.0,
                                                                   ),
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 5.0,
-                                                              ),
-                                                              Theme(
-                                                                data: Theme.of(
-                                                                        context)
-                                                                    .copyWith(
-                                                                  colorScheme: ThemeData()
-                                                                      .colorScheme
-                                                                      .copyWith(
+                                                                  const Align(
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .centerLeft,
+                                                                    child: Text(
+                                                                      'Last Name',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontFamily:
+                                                                            'OpenSans',
+                                                                        letterSpacing:
+                                                                            0.6,
+                                                                        fontSize:
+                                                                            16.0,
+                                                                        fontWeight:
+                                                                            FontWeight.w600,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 5.0,
+                                                                  ),
+                                                                  Theme(
+                                                                    data: Theme.of(
+                                                                            context)
+                                                                        .copyWith(
+                                                                      colorScheme: ThemeData().colorScheme.copyWith(
                                                                           primary: Color.fromARGB(
                                                                               255,
                                                                               44,
                                                                               79,
                                                                               106)),
-                                                                ),
-                                                                child:
-                                                                    TextFormField(
-                                                                  enabled:
-                                                                      _editAccount,
-                                                                  controller:
-                                                                      _lastNameController,
-                                                                  inputFormatters: <
-                                                                      TextInputFormatter>[
-                                                                    FilteringTextInputFormatter
-                                                                        .allow(RegExp(
-                                                                            "[a-zA-Z ]")),
-                                                                    LengthLimitingTextInputFormatter(
-                                                                        100),
-                                                                  ],
-                                                                  decoration:
-                                                                      const InputDecoration(
-                                                                    focusedBorder:
-                                                                        OutlineInputBorder(),
-                                                                    prefixIcon:
-                                                                        Icon(Icons
-                                                                            .person_outline),
-                                                                    border:
-                                                                        OutlineInputBorder(),
+                                                                    ),
+                                                                    child:
+                                                                        TextFormField(
+                                                                      enabled:
+                                                                          _editAccount,
+                                                                      controller:
+                                                                          _lastNameController,
+                                                                      inputFormatters: <
+                                                                          TextInputFormatter>[
+                                                                        FilteringTextInputFormatter.allow(
+                                                                            RegExp("[a-zA-Z ]")),
+                                                                        LengthLimitingTextInputFormatter(
+                                                                            100),
+                                                                      ],
+                                                                      decoration:
+                                                                          const InputDecoration(
+                                                                        focusedBorder:
+                                                                            OutlineInputBorder(),
+                                                                        prefixIcon:
+                                                                            Icon(Icons.person_outline),
+                                                                        border:
+                                                                            OutlineInputBorder(),
+                                                                      ),
+                                                                      keyboardType:
+                                                                          TextInputType
+                                                                              .text,
+                                                                      textCapitalization:
+                                                                          TextCapitalization
+                                                                              .sentences,
+                                                                      autovalidateMode:
+                                                                          AutovalidateMode
+                                                                              .onUserInteraction,
+                                                                      onFieldSubmitted:
+                                                                          (value) {},
+                                                                      validator:
+                                                                          (value) {
+                                                                        if (value!
+                                                                            .trim()
+                                                                            .isEmpty) {
+                                                                          return 'Last Name is required';
+                                                                        } else if (value
+                                                                            .startsWith(RegExp(r'[0-9]'))) {
+                                                                          return 'Last name is not valid';
+                                                                        }
+                                                                      },
+                                                                    ),
                                                                   ),
-                                                                  keyboardType:
-                                                                      TextInputType
-                                                                          .text,
-                                                                  textCapitalization:
-                                                                      TextCapitalization
-                                                                          .sentences,
-                                                                  autovalidateMode:
-                                                                      AutovalidateMode
-                                                                          .onUserInteraction,
-                                                                  onFieldSubmitted:
-                                                                      (value) {},
-                                                                  validator:
-                                                                      (value) {
-                                                                    if (value!
-                                                                        .trim()
-                                                                        .isEmpty) {
-                                                                      return 'Last Name is required';
-                                                                    } else if (value
-                                                                        .startsWith(
-                                                                            RegExp(r'[0-9]'))) {
-                                                                      return 'Last name is not valid';
-                                                                    }
-                                                                  },
-                                                                ),
-                                                              ),
-                                                              SizedBox(
-                                                                height: 60.0,
-                                                              ),
-                                                              ElevatedButton(
-                                                                  style: ElevatedButton.styleFrom(
-                                                                      primary: Color
-                                                                          .fromARGB(
+                                                                  SizedBox(
+                                                                    height:
+                                                                        60.0,
+                                                                  ),
+                                                                  ElevatedButton(
+                                                                      style: ElevatedButton.styleFrom(
+                                                                          primary: Color.fromARGB(
                                                                               255,
                                                                               4,
                                                                               44,
                                                                               76),
-                                                                      minimumSize:
-                                                                          const Size.fromHeight(
+                                                                          minimumSize: const Size.fromHeight(
                                                                               60),
-                                                                      textStyle: const TextStyle(
-                                                                          color: Colors
-                                                                              .white,
-                                                                          fontSize:
-                                                                              20,
-                                                                          fontWeight: FontWeight
-                                                                              .w600)),
-                                                                  onPressed:
-                                                                      !_loading
+                                                                          textStyle: const TextStyle(
+                                                                              color: Colors.white,
+                                                                              fontSize: 20,
+                                                                              fontWeight: FontWeight.w600)),
+                                                                      onPressed: !_loading
                                                                           ? () {
                                                                               String name1, name2;
                                                                               name1 = _firstNameController.text.toString();
@@ -456,12 +443,14 @@ class _UserPageState extends State<UserPage> {
                                                                               }
                                                                             }
                                                                           : null,
-                                                                  child: Text(
-                                                                      buttonName)),
-                                                              SizedBox(
-                                                                height: 90.0,
-                                                              )
-                                                            ]))),
+                                                                      child: Text(buttonName)),
+                                                                  SizedBox(
+                                                                    height:
+                                                                        50.0,
+                                                                  )
+                                                                ]),
+                                                          ],
+                                                        ))),
                                               );
                                             }));
                               },
@@ -538,190 +527,182 @@ class _UserPageState extends State<UserPage> {
                                                             25.0),
                                                     child: Form(
                                                         key: _formKey,
-                                                        child: Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              Text(
-                                                                'Change Password',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        20.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w700),
-                                                              ),
-                                                              SizedBox(
-                                                                height: 40.0,
-                                                              ),
-                                                              const Align(
-                                                                alignment: Alignment
-                                                                    .centerLeft,
-                                                                child: Text(
-                                                                  'New Password',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontFamily:
-                                                                        'OpenSans',
-                                                                    letterSpacing:
-                                                                        0.6,
-                                                                    fontSize:
-                                                                        16.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600,
+                                                        child: ListView(
+                                                          shrinkWrap: true,
+                                                          children: [
+                                                            Column(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min,
+                                                                children: [
+                                                                  Text(
+                                                                    'Change Password',
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            20.0,
+                                                                        fontWeight:
+                                                                            FontWeight.w700),
                                                                   ),
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 5.0,
-                                                              ),
-                                                              Theme(
-                                                                data: Theme.of(
-                                                                        context)
-                                                                    .copyWith(
-                                                                  colorScheme: ThemeData()
-                                                                      .colorScheme
-                                                                      .copyWith(
+                                                                  SizedBox(
+                                                                    height:
+                                                                        40.0,
+                                                                  ),
+                                                                  const Align(
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .centerLeft,
+                                                                    child: Text(
+                                                                      'New Password',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontFamily:
+                                                                            'OpenSans',
+                                                                        letterSpacing:
+                                                                            0.6,
+                                                                        fontSize:
+                                                                            16.0,
+                                                                        fontWeight:
+                                                                            FontWeight.w600,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 5.0,
+                                                                  ),
+                                                                  Theme(
+                                                                    data: Theme.of(
+                                                                            context)
+                                                                        .copyWith(
+                                                                      colorScheme: ThemeData().colorScheme.copyWith(
                                                                           primary: Color.fromARGB(
                                                                               255,
                                                                               44,
                                                                               79,
                                                                               106)),
-                                                                ),
-                                                                child:
-                                                                    TextFormField(
-                                                                  controller:
-                                                                      _passwordController,
-                                                                  obscureText:
-                                                                      _obscureText,
-                                                                  decoration: InputDecoration(
-                                                                      prefixIcon: const Icon(Icons.password),
-                                                                      suffixIcon: IconButton(
-                                                                          onPressed: () {
-                                                                            setModalState2(() {
-                                                                              _obscureText = !_obscureText;
-                                                                            });
-                                                                          },
-                                                                          icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off)),
-                                                                      border: const OutlineInputBorder(),
-                                                                      hintText: '*******'),
-                                                                  inputFormatters: [
-                                                                    LengthLimitingTextInputFormatter(
-                                                                        100),
-                                                                  ],
-                                                                  autovalidateMode:
-                                                                      AutovalidateMode
-                                                                          .onUserInteraction,
-                                                                  validator:
-                                                                      (value) {
-                                                                    if (value!
-                                                                            .isEmpty ||
-                                                                        value.length <
-                                                                            6) {
-                                                                      return 'Password must be at least 6  character';
-                                                                    }
-                                                                  },
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 30.0,
-                                                              ),
-                                                              const Align(
-                                                                alignment: Alignment
-                                                                    .centerLeft,
-                                                                child: Text(
-                                                                  'Confirm Password',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontFamily:
-                                                                        'OpenSans',
-                                                                    letterSpacing:
-                                                                        0.6,
-                                                                    fontSize:
-                                                                        16.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600,
+                                                                    ),
+                                                                    child:
+                                                                        TextFormField(
+                                                                      controller:
+                                                                          _passwordController,
+                                                                      obscureText:
+                                                                          _obscureText,
+                                                                      decoration: InputDecoration(
+                                                                          prefixIcon: const Icon(Icons.password),
+                                                                          suffixIcon: IconButton(
+                                                                              onPressed: () {
+                                                                                setModalState2(() {
+                                                                                  _obscureText = !_obscureText;
+                                                                                });
+                                                                              },
+                                                                              icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off)),
+                                                                          border: const OutlineInputBorder(),
+                                                                          hintText: '*******'),
+                                                                      inputFormatters: [
+                                                                        LengthLimitingTextInputFormatter(
+                                                                            100),
+                                                                      ],
+                                                                      autovalidateMode:
+                                                                          AutovalidateMode
+                                                                              .onUserInteraction,
+                                                                      validator:
+                                                                          (value) {
+                                                                        if (value!.isEmpty ||
+                                                                            value.length <
+                                                                                6) {
+                                                                          return 'Password must be at least 6  character';
+                                                                        }
+                                                                      },
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 5.0,
-                                                              ),
-                                                              Theme(
-                                                                data: Theme.of(
-                                                                        context)
-                                                                    .copyWith(
-                                                                  colorScheme: ThemeData()
-                                                                      .colorScheme
-                                                                      .copyWith(
+                                                                  const SizedBox(
+                                                                    height:
+                                                                        30.0,
+                                                                  ),
+                                                                  const Align(
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .centerLeft,
+                                                                    child: Text(
+                                                                      'Confirm Password',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontFamily:
+                                                                            'OpenSans',
+                                                                        letterSpacing:
+                                                                            0.6,
+                                                                        fontSize:
+                                                                            16.0,
+                                                                        fontWeight:
+                                                                            FontWeight.w600,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 5.0,
+                                                                  ),
+                                                                  Theme(
+                                                                    data: Theme.of(
+                                                                            context)
+                                                                        .copyWith(
+                                                                      colorScheme: ThemeData().colorScheme.copyWith(
                                                                           primary: Color.fromARGB(
                                                                               255,
                                                                               44,
                                                                               79,
                                                                               106)),
-                                                                ),
-                                                                child:
-                                                                    TextFormField(
-                                                                  controller:
-                                                                      _confirmPasswordController,
-                                                                  obscureText:
-                                                                      _obscureText,
-                                                                  decoration: InputDecoration(
-                                                                      prefixIcon: const Icon(Icons.password),
-                                                                      suffixIcon: IconButton(
-                                                                          onPressed: () {
-                                                                            setModalState2(() {
-                                                                              _obscureText = !_obscureText;
-                                                                            });
-                                                                          },
-                                                                          icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off)),
-                                                                      border: const OutlineInputBorder(),
-                                                                      hintText: '*******'),
-                                                                  inputFormatters: [
-                                                                    LengthLimitingTextInputFormatter(
-                                                                        100),
-                                                                  ],
-                                                                  autovalidateMode:
-                                                                      AutovalidateMode
-                                                                          .onUserInteraction,
-                                                                  validator:
-                                                                      (value) {
-                                                                    if (value !=
-                                                                            _passwordController.text
-                                                                                .toString() ||
-                                                                        value!
-                                                                            .isEmpty) {
-                                                                      return 'Passwords don\'t match';
-                                                                    }
-                                                                  },
-                                                                ),
-                                                              ),
-                                                              SizedBox(
-                                                                height: 60.0,
-                                                              ),
-                                                              ElevatedButton(
-                                                                  style: ElevatedButton.styleFrom(
-                                                                      primary: Color
-                                                                          .fromARGB(
+                                                                    ),
+                                                                    child:
+                                                                        TextFormField(
+                                                                      controller:
+                                                                          _confirmPasswordController,
+                                                                      obscureText:
+                                                                          _obscureText,
+                                                                      decoration: InputDecoration(
+                                                                          prefixIcon: const Icon(Icons.password),
+                                                                          suffixIcon: IconButton(
+                                                                              onPressed: () {
+                                                                                setModalState2(() {
+                                                                                  _obscureText = !_obscureText;
+                                                                                });
+                                                                              },
+                                                                              icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off)),
+                                                                          border: const OutlineInputBorder(),
+                                                                          hintText: '*******'),
+                                                                      inputFormatters: [
+                                                                        LengthLimitingTextInputFormatter(
+                                                                            100),
+                                                                      ],
+                                                                      autovalidateMode:
+                                                                          AutovalidateMode
+                                                                              .onUserInteraction,
+                                                                      validator:
+                                                                          (value) {
+                                                                        if (value !=
+                                                                                _passwordController.text.toString() ||
+                                                                            value!.isEmpty) {
+                                                                          return 'Passwords don\'t match';
+                                                                        }
+                                                                      },
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    height:
+                                                                        60.0,
+                                                                  ),
+                                                                  ElevatedButton(
+                                                                      style: ElevatedButton.styleFrom(
+                                                                          primary: Color.fromARGB(
                                                                               255,
                                                                               4,
                                                                               44,
                                                                               76),
-                                                                      minimumSize:
-                                                                          const Size.fromHeight(
+                                                                          minimumSize: const Size.fromHeight(
                                                                               60),
-                                                                      textStyle: const TextStyle(
-                                                                          color: Colors
-                                                                              .white,
-                                                                          fontSize:
-                                                                              20,
-                                                                          fontWeight: FontWeight
-                                                                              .w600)),
-                                                                  onPressed:
-                                                                      !_loading
+                                                                          textStyle: const TextStyle(
+                                                                              color: Colors.white,
+                                                                              fontSize: 20,
+                                                                              fontWeight: FontWeight.w600)),
+                                                                      onPressed: !_loading
                                                                           ? () {
                                                                               if (_formKey.currentState!.validate()) {
                                                                                 String pass = _passwordController.text.toString();
@@ -729,12 +710,14 @@ class _UserPageState extends State<UserPage> {
                                                                               }
                                                                             }
                                                                           : null,
-                                                                  child: const Text(
-                                                                      'Edit Password')),
-                                                              SizedBox(
-                                                                height: 50.0,
-                                                              )
-                                                            ]))),
+                                                                      child: const Text('Edit Password')),
+                                                                  SizedBox(
+                                                                    height:
+                                                                        50.0,
+                                                                  )
+                                                                ]),
+                                                          ],
+                                                        ))),
                                               );
                                             }));
                               },
@@ -906,16 +889,11 @@ class _UserPageState extends State<UserPage> {
               borderRadius: BorderRadius.circular(15.0),
             ),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(
-                  height: 50.0,
-                ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(
-                      width: 15.0,
-                    ),
                     ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           elevation: 5.0,
@@ -974,9 +952,6 @@ class _UserPageState extends State<UserPage> {
                         ])),
                   ],
                 ),
-                SizedBox(
-                  height: 50.0,
-                )
               ],
             ),
           );

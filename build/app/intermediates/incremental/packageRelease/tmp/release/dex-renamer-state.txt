@@ -1,0 +1,4 @@
+#Fri Feb 03 23:23:16 WAT 2023
+base.0=/Users/mac/Desktop/flutter projects/proj_1/build/app/intermediates/dex/release/minifyReleaseWithR8/classes.dex
+renamed.0=classes.dex
+path.0=classes.dex

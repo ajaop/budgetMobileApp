@@ -263,204 +263,143 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                                                       25.0),
                                                               child: Form(
                                                                 key: _formKey,
-                                                                child: Column(
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .min,
-                                                                  children: [
-                                                                    const Align(
-                                                                      alignment:
-                                                                          Alignment
-                                                                              .centerLeft,
-                                                                      child:
-                                                                          Text(
-                                                                        'Amount',
-                                                                        style: TextStyle(
-                                                                            fontFamily:
-                                                                                'OpenSans',
-                                                                            letterSpacing:
-                                                                                0.2,
-                                                                            fontSize:
-                                                                                16.0,
-                                                                            fontWeight: FontWeight
-                                                                                .w600,
-                                                                            color: Color.fromARGB(
-                                                                                255,
-                                                                                67,
-                                                                                65,
-                                                                                65)),
-                                                                      ),
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height:
-                                                                          10.0,
-                                                                    ),
-                                                                    Theme(
-                                                                      data: Theme.of(
-                                                                              context)
-                                                                          .copyWith(
-                                                                        colorScheme: ThemeData()
-                                                                            .colorScheme
-                                                                            .copyWith(primary: Color.fromARGB(255, 44, 79, 106)),
-                                                                      ),
-                                                                      child:
-                                                                          TextFormField(
-                                                                        inputFormatters: [
-                                                                          CurrencyTextInputFormatter(
-                                                                            locale:
-                                                                                'en_NG',
-                                                                            decimalDigits:
-                                                                                0,
-                                                                            symbol:
-                                                                                '₦',
-                                                                          ),
-                                                                          LengthLimitingTextInputFormatter(
-                                                                              21),
-                                                                        ],
-                                                                        controller:
-                                                                            _amountController,
-                                                                        decoration:
-                                                                            const InputDecoration(
-                                                                          border:
-                                                                              OutlineInputBorder(),
-                                                                          hintText:
-                                                                              '12,000.00',
-                                                                        ),
-                                                                        keyboardType:
-                                                                            TextInputType.number,
-                                                                        autovalidateMode:
-                                                                            AutovalidateMode.onUserInteraction,
-                                                                        onFieldSubmitted:
-                                                                            (value) {},
-                                                                        validator:
-                                                                            (value) {
-                                                                          if (value!
-                                                                              .trim()
-                                                                              .isEmpty) {
-                                                                            return 'Amount is required';
-                                                                          } else if (value.replaceAll('₦', '') ==
-                                                                              '0') {
-                                                                            return 'Amount can not be 0';
-                                                                          }
-                                                                        },
-                                                                      ),
-                                                                    ),
-                                                                    const SizedBox(
-                                                                      height:
-                                                                          40.0,
-                                                                    ),
-                                                                    const Align(
-                                                                      alignment:
-                                                                          Alignment
-                                                                              .centerLeft,
-                                                                      child:
-                                                                          Text(
-                                                                        'Description',
-                                                                        style: TextStyle(
-                                                                            fontFamily:
-                                                                                'OpenSans',
-                                                                            letterSpacing:
-                                                                                0.2,
-                                                                            fontSize:
-                                                                                16.0,
-                                                                            fontWeight: FontWeight
-                                                                                .w600,
-                                                                            color: Color.fromARGB(
-                                                                                255,
-                                                                                67,
-                                                                                65,
-                                                                                65)),
-                                                                      ),
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height:
-                                                                          10.0,
-                                                                    ),
-                                                                    Theme(
-                                                                      data: Theme.of(
-                                                                              context)
-                                                                          .copyWith(
-                                                                        colorScheme: ThemeData()
-                                                                            .colorScheme
-                                                                            .copyWith(primary: Color.fromARGB(255, 44, 79, 106)),
-                                                                      ),
-                                                                      child:
-                                                                          TextFormField(
-                                                                        controller:
-                                                                            _amountDescriptionController,
-                                                                        maxLength:
-                                                                            15,
-                                                                        inputFormatters: <
-                                                                            TextInputFormatter>[
-                                                                          FilteringTextInputFormatter.allow(
-                                                                              RegExp("[a-zA-Z ]")),
-                                                                          LengthLimitingTextInputFormatter(
-                                                                              100),
-                                                                        ],
-                                                                        decoration:
-                                                                            const InputDecoration(
-                                                                          border:
-                                                                              OutlineInputBorder(),
-                                                                          hintText:
-                                                                              'Bonus Amount',
-                                                                        ),
-                                                                        keyboardType:
-                                                                            TextInputType.text,
-                                                                        textCapitalization:
-                                                                            TextCapitalization.sentences,
-                                                                        autovalidateMode:
-                                                                            AutovalidateMode.onUserInteraction,
-                                                                        onFieldSubmitted:
-                                                                            (value) {},
-                                                                        validator:
-                                                                            (value) {
-                                                                          if (value!
-                                                                              .trim()
-                                                                              .isEmpty) {
-                                                                            return 'Description is required';
-                                                                          } else if (value
-                                                                              .startsWith(RegExp(r'[0-9]'))) {
-                                                                            return 'Description is not valid';
-                                                                          }
-                                                                        },
-                                                                      ),
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height:
-                                                                          40.0,
-                                                                    ),
-                                                                    ElevatedButton(
-                                                                        style: ElevatedButton.styleFrom(
-                                                                            shape: RoundedRectangleBorder(
-                                                                              borderRadius: BorderRadius.circular(10),
+                                                                child: ListView(
+                                                                    shrinkWrap:
+                                                                        true,
+                                                                    children: [
+                                                                      Column(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.min,
+                                                                        children: [
+                                                                          const Align(
+                                                                            alignment:
+                                                                                Alignment.centerLeft,
+                                                                            child:
+                                                                                Text(
+                                                                              'Amount',
+                                                                              style: TextStyle(fontFamily: 'OpenSans', letterSpacing: 0.2, fontSize: 16.0, fontWeight: FontWeight.w600, color: Color.fromARGB(255, 67, 65, 65)),
                                                                             ),
-                                                                            primary: Color.fromARGB(255, 4, 44, 76),
-                                                                            minimumSize: const Size.fromHeight(60),
-                                                                            textStyle: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                                                                        onPressed: !_loading
-                                                                            ? () {
-                                                                                if (_formKey.currentState!.validate()) {
-                                                                                  setState(() {
-                                                                                    _loading = true;
-                                                                                  });
-                                                                                  setModalState(() {
-                                                                                    _loading = true;
-                                                                                  });
-
-                                                                                  String amount = _amountController.text.toString().replaceAll(',', '').replaceAll('₦', '').trim();
-                                                                                  String description = _amountDescriptionController.text.toString().trim();
-
-                                                                                  addAmount(double.parse(amount), description, setModalState);
+                                                                          ),
+                                                                          SizedBox(
+                                                                            height:
+                                                                                10.0,
+                                                                          ),
+                                                                          Theme(
+                                                                            data:
+                                                                                Theme.of(context).copyWith(
+                                                                              colorScheme: ThemeData().colorScheme.copyWith(primary: Color.fromARGB(255, 44, 79, 106)),
+                                                                            ),
+                                                                            child:
+                                                                                TextFormField(
+                                                                              inputFormatters: [
+                                                                                CurrencyTextInputFormatter(
+                                                                                  locale: 'en_NG',
+                                                                                  decimalDigits: 0,
+                                                                                  symbol: '₦',
+                                                                                ),
+                                                                                LengthLimitingTextInputFormatter(21),
+                                                                              ],
+                                                                              controller: _amountController,
+                                                                              decoration: const InputDecoration(
+                                                                                border: OutlineInputBorder(),
+                                                                                hintText: '12,000.00',
+                                                                              ),
+                                                                              keyboardType: TextInputType.number,
+                                                                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                                                                              onFieldSubmitted: (value) {},
+                                                                              validator: (value) {
+                                                                                if (value!.trim().isEmpty) {
+                                                                                  return 'Amount is required';
+                                                                                } else if (value.replaceAll('₦', '') == '0') {
+                                                                                  return 'Amount can not be 0';
                                                                                 }
-                                                                              }
-                                                                            : null,
-                                                                        child: Text('Add Money')),
-                                                                    SizedBox(
-                                                                      height:
-                                                                          30.0,
-                                                                    )
-                                                                  ],
-                                                                ),
+                                                                              },
+                                                                            ),
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            height:
+                                                                                40.0,
+                                                                          ),
+                                                                          const Align(
+                                                                            alignment:
+                                                                                Alignment.centerLeft,
+                                                                            child:
+                                                                                Text(
+                                                                              'Description',
+                                                                              style: TextStyle(fontFamily: 'OpenSans', letterSpacing: 0.2, fontSize: 16.0, fontWeight: FontWeight.w600, color: Color.fromARGB(255, 67, 65, 65)),
+                                                                            ),
+                                                                          ),
+                                                                          SizedBox(
+                                                                            height:
+                                                                                10.0,
+                                                                          ),
+                                                                          Theme(
+                                                                            data:
+                                                                                Theme.of(context).copyWith(
+                                                                              colorScheme: ThemeData().colorScheme.copyWith(primary: Color.fromARGB(255, 44, 79, 106)),
+                                                                            ),
+                                                                            child:
+                                                                                TextFormField(
+                                                                              controller: _amountDescriptionController,
+                                                                              maxLength: 15,
+                                                                              inputFormatters: <TextInputFormatter>[
+                                                                                FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]")),
+                                                                                LengthLimitingTextInputFormatter(100),
+                                                                              ],
+                                                                              decoration: const InputDecoration(
+                                                                                border: OutlineInputBorder(),
+                                                                                hintText: 'Bonus Amount',
+                                                                              ),
+                                                                              keyboardType: TextInputType.text,
+                                                                              textCapitalization: TextCapitalization.sentences,
+                                                                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                                                                              onFieldSubmitted: (value) {},
+                                                                              validator: (value) {
+                                                                                if (value!.trim().isEmpty) {
+                                                                                  return 'Description is required';
+                                                                                } else if (value.startsWith(RegExp(r'[0-9]'))) {
+                                                                                  return 'Description is not valid';
+                                                                                }
+                                                                              },
+                                                                            ),
+                                                                          ),
+                                                                          SizedBox(
+                                                                            height:
+                                                                                40.0,
+                                                                          ),
+                                                                          ElevatedButton(
+                                                                              style: ElevatedButton.styleFrom(
+                                                                                  shape: RoundedRectangleBorder(
+                                                                                    borderRadius: BorderRadius.circular(10),
+                                                                                  ),
+                                                                                  primary: Color.fromARGB(255, 4, 44, 76),
+                                                                                  minimumSize: const Size.fromHeight(60),
+                                                                                  textStyle: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                                                                              onPressed: !_loading
+                                                                                  ? () {
+                                                                                      if (_formKey.currentState!.validate()) {
+                                                                                        setState(() {
+                                                                                          _loading = true;
+                                                                                        });
+                                                                                        setModalState(() {
+                                                                                          _loading = true;
+                                                                                        });
+
+                                                                                        String amount = _amountController.text.toString().replaceAll(',', '').replaceAll('₦', '').trim();
+                                                                                        String description = _amountDescriptionController.text.toString().trim();
+
+                                                                                        addAmount(double.parse(amount), description, setModalState);
+                                                                                      }
+                                                                                    }
+                                                                                  : null,
+                                                                              child: Text('Add Money')),
+                                                                          SizedBox(
+                                                                            height:
+                                                                                30.0,
+                                                                          )
+                                                                        ],
+                                                                      ),
+                                                                    ]),
                                                               ),
                                                             ));
                                                       }));

@@ -1,0 +1,34 @@
+[
+    {
+        "merged": "/Users/mac/Desktop/flutter projects/proj_1/build/firebase_auth/intermediates/merged_res/release/layout/notification_action.xml",
+        "source": "/Users/mac/.gradle/caches/transforms-3/38d22ba270b37cc0836b15a77d61cbc5/transformed/core-1.6.0/res/layout/notification_action.xml"
+    },
+    {
+        "merged": "/Users/mac/Desktop/flutter projects/proj_1/build/firebase_auth/intermediates/merged_res/release/layout/custom_dialog.xml",
+        "source": "/Users/mac/.gradle/caches/transforms-3/38d22ba270b37cc0836b15a77d61cbc5/transformed/core-1.6.0/res/layout/custom_dialog.xml"
+    },
+    {
+        "merged": "/Users/mac/Desktop/flutter projects/proj_1/build/firebase_auth/intermediates/merged_res/release/layout/browser_actions_context_menu_page.xml",
+        "source": "/Users/mac/.gradle/caches/transforms-3/f07d6e4724527d1b220c88fb2e7592a0/transformed/browser-1.4.0/res/layout/browser_actions_context_menu_page.xml"
+    },
+    {
+        "merged": "/Users/mac/Desktop/flutter projects/proj_1/build/firebase_auth/intermediates/merged_res/release/layout/browser_actions_context_menu_row.xml",
+        "source": "/Users/mac/.gradle/caches/transforms-3/f07d6e4724527d1b220c88fb2e7592a0/transformed/browser-1.4.0/res/layout/browser_actions_context_menu_row.xml"
+    },
+    {
+        "merged": "/Users/mac/Desktop/flutter projects/proj_1/build/firebase_auth/intermediates/merged_res/release/layout/notification_template_part_chronometer.xml",
+        "source": "/Users/mac/.gradle/caches/transforms-3/38d22ba270b37cc0836b15a77d61cbc5/transformed/core-1.6.0/res/layout/notification_template_part_chronometer.xml"
+    },
+    {
+        "merged": "/Users/mac/Desktop/flutter projects/proj_1/build/firebase_auth/intermediates/merged_res/release/layout/notification_action_tombstone.xml",
+        "source": "/Users/mac/.gradle/caches/transforms-3/38d22ba270b37cc0836b15a77d61cbc5/transformed/core-1.6.0/res/layout/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "/Users/mac/Desktop/flutter projects/proj_1/build/firebase_auth/intermediates/merged_res/release/layout/notification_template_part_time.xml",
+        "source": "/Users/mac/.gradle/caches/transforms-3/38d22ba270b37cc0836b15a77d61cbc5/transformed/core-1.6.0/res/layout/notification_template_part_time.xml"
+    },
+    {
+        "merged": "/Users/mac/Desktop/flutter projects/proj_1/build/firebase_auth/intermediates/merged_res/release/layout/notification_template_icon_group.xml",
+        "source": "/Users/mac/.gradle/caches/transforms-3/38d22ba270b37cc0836b15a77d61cbc5/transformed/core-1.6.0/res/layout/notification_template_icon_group.xml"
+    }
+]
