@@ -13,7 +13,6 @@ import 'package:intl/intl.dart';
 import 'package:proj_1/Transactions.dart';
 import 'package:proj_1/finances_page.dart';
 import 'package:proj_1/signin.dart';
-
 import 'add_budget_page.dart';
 import 'custom_alert_dialog.dart';
 import 'database_service.dart';
