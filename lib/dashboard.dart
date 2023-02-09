@@ -97,8 +97,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
     if (user?.uid.isEmpty == null) {
       SchedulerBinding.instance!.addPostFrameCallback((_) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (BuildContext context) => SignIn()));
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/', (Route<dynamic> route) => false);
       });
     } else {
       print("user Id ${user!.uid}");

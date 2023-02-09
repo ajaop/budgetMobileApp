@@ -46,8 +46,8 @@ class _UserPageState extends State<UserPage> {
     final User? user = auth.currentUser;
     if (user?.uid.isEmpty == null) {
       SchedulerBinding.instance!.addPostFrameCallback((_) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (BuildContext context) => SignIn()));
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/', (Route<dynamic> route) => false);
       });
     } else {
       print("user Id ${user!.uid}");
@@ -1298,15 +1298,15 @@ class _UserPageState extends State<UserPage> {
 
   Future<void> _signOut() async {
     setState(() {
+      _imageLoaded = false;
       _loading = true;
     });
 
     await FirebaseAuth.instance.signOut();
     final User? user = auth.currentUser;
     if (user?.uid.isEmpty == null) {
-      _imageLoaded == false;
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (BuildContext context) => SignIn()));
+      Navigator.pushNamedAndRemoveUntil(
+          context, '/', (Route<dynamic> route) => false);
     } else {
       print("user Id ${user!.uid}");
     }

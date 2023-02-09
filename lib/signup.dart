@@ -42,6 +42,14 @@ class _SignupScreenState extends State<SignupScreen> {
           .createUserWithEmailAndPassword(email: username, password: pass)
           .then((value) =>
               print('user with user id ${value.user!.uid} is logged in'));
+
+      bool addData = await sendToDB(firstNameText, lastNameText, emailText);
+      print('add data ${addData.toString()}');
+      if (addData == true) {
+        Navigator.pushReplacementNamed(context, '/homepage');
+      } else {
+        error('Error signing up user.');
+      }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         error('The password provided is too weak.');
@@ -72,14 +80,6 @@ class _SignupScreenState extends State<SignupScreen> {
       }
     } catch (e) {
       print(e);
-    }
-
-    bool addData = await sendToDB(firstNameText, lastNameText, emailText);
-    print('add data ${addData.toString()}');
-    if (addData == true) {
-      Navigator.pushReplacementNamed(context, '/homepage');
-    } else {
-      error('Error signing up user.');
     }
 
     setState(() {
@@ -113,27 +113,21 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future<bool> doesUserAlreadyExist(String uid) async {
-    await FirebaseFirestore.instance
+    final dynamic values = await FirebaseFirestore.instance
         .collection("users")
         .where('userId', isEqualTo: uid)
         .limit(1)
-        .get()
-        .then((docs) {
-      if (docs.size >= 1) {
-        return true;
-      } else {
-        return false;
-      }
-    }, onError: (e) {
-      print("Error completing: $e");
-      error(e.toString());
-    });
+        .get();
 
-    return false;
+    if (values.size >= 1) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   void error(errorMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    _messangerKey.currentState!.showSnackBar(SnackBar(
         behavior: SnackBarBehavior.floating,
         backgroundColor: Colors.red[600],
         elevation: 0,
